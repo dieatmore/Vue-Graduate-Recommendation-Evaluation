@@ -4,6 +4,10 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('@/views/login/LoginView.vue')
+  },
+  {
+    path: '/admin',
+    component: () => import('@/views/Admin/TesView.vue')
   }
 ]
 
