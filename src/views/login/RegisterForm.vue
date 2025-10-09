@@ -99,7 +99,7 @@ const getList = async () => {
 }
 
 // 切换到登录表单
-const switchToLogin = (): void => {
+const switchToLogin = () => {
   emit('switch-to-login')
 }
 
@@ -135,7 +135,6 @@ const handleChange = (value: any[]) => {
     }
   }
   form.value.categoryId = categoryId
-  console.log('数据:', form.value)
 }
 
 const form = ref({
