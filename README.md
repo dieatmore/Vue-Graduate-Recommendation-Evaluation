@@ -22,6 +22,7 @@
 <br/>
 
 - 学生注册
+- 更新vscode版本以及node.js版本后any类型报错，取消Eslint禁用any类型
 
 <br/>
 2025-10-08
