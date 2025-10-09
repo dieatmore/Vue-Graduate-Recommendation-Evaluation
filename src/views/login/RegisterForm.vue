@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <template>
   <el-form
     :rules="rules"
@@ -92,7 +93,6 @@ const getList = async () => {
         categoryId: major.categoryId
       }))
     }))
-    console.log('生成的options结构:', options.value)
   } catch (error) {
     console.error('获取数据失败！', error)
   }
@@ -164,11 +164,10 @@ const handleRegister = async () => {
       majorId: form.value.majorId
     }
     await RegisterService(registerData)
-    console.log('注册提交数据：', registerData)
     message.success('注册成功！')
     emit('switch-to-login')
   } catch (error) {
-    message.error('注册失败:' + error)
+    message.error('注册失败！' + error)
   } finally {
     loading.value = false
   }

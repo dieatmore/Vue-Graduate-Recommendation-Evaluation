@@ -15,7 +15,7 @@
       </div>
 
       <LoginForm v-if="currentForm === 'login'" @switch-to-register="switchToRegister" />
-      <RegisterForm v-else="currentForm === 'register'" @switch-to-login="switchToLogin" />
+      <RegisterForm v-if="currentForm === 'register'" @switch-to-login="switchToLogin" />
     </el-card>
   </div>
 </template>
