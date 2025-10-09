@@ -48,7 +48,7 @@ const switchToLogin = () => {
 }
 .right-section {
   position: fixed;
-  right: 15%;
+  right: 12%;
   top: 50%;
   transform: translateY(-50%);
 }

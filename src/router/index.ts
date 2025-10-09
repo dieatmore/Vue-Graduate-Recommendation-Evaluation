@@ -7,7 +7,14 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/admin',
-    component: () => import('@/views/Admin/TesView.vue')
+    component: () => import('@/views/Admin/IndexView.vue'),
+    redirect: '/college',
+    children: [
+      {
+        path: '/college',
+        component: () => import('@/views/Admin/CollegeView.vue')
+      }
+    ]
   }
 ]
 

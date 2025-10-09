@@ -1,4 +1,4 @@
-import axios from '@/axios'
+import axios, { useGet, usePost } from '@/axios'
 import { useMessage } from '@/components/message'
 import router from '@/router'
 // import { useUserStore } from '@/stores/UserStore'
@@ -6,6 +6,7 @@ import { Role, type ResultVO, type Userx } from '@/types'
 
 const message = useMessage()
 
+// 登录请求
 export const loginService = async (user: Userx) => {
   let path = null
   try {
@@ -31,4 +32,14 @@ export const loginService = async (user: Userx) => {
   } finally {
     path && router.push(path)
   }
+}
+
+// 注册:获取所有学院和专业
+export const CollegesAndMajorsService = async () => {
+  return await useGet('open/register/collegesmajors')
+}
+
+// 学生注册
+export const RegisterService = async (user: Userx) => {
+  return await usePost('open/register', user)
 }

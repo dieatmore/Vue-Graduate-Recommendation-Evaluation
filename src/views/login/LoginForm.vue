@@ -33,6 +33,7 @@
 </template>
 
 <script setup lang="ts">
+import { useMessage } from '@/components/message'
 import { loginService } from '@/services/LoginService'
 import type { Userx } from '@/types'
 import { Lock, User } from '@element-plus/icons-vue'
@@ -43,6 +44,7 @@ const emit = defineEmits<{
   'switch-to-register': []
 }>()
 
+const message = useMessage()
 const formRef = ref<FormInstance>()
 const loading = ref(false)
 
@@ -67,11 +69,11 @@ const rules = {
 const handleLogin = async () => {
   const formRule = await formRef.value?.validate()
   if (!formRule) return
-  loading.value = true
   try {
+    loading.value = true
     await loginService(form.value)
-  } catch (error) {
-    console.error('登录失败:', error)
+  } catch (error: any) {
+    console.log(error)
   } finally {
     loading.value = false
   }
