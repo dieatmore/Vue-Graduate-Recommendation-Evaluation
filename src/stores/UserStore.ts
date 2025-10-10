@@ -6,6 +6,7 @@ const clear = () => (UserS.value = undefined)
 
 // 持久存储会话方法
 const setUser = (user: Userx) => {
+  UserS.value = user
   sessionStorage.setItem('user', JSON.stringify(user))
 }
 

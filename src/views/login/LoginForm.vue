@@ -6,8 +6,8 @@
     label-width="50px"
     label-position="top"
     class="w-80">
-    <el-form-item label="用户名" prop="account">
-      <el-input v-model="form.account" placeholder="请输入用户名" :prefix-icon="User" />
+    <el-form-item label="账号" prop="account">
+      <el-input v-model="form.account" placeholder="请输入账号" :prefix-icon="User" />
     </el-form-item>
     <el-form-item label="密码" prop="password">
       <el-input
@@ -54,7 +54,7 @@ const form = ref<Userx>({
 // 表单验证规则
 const rules = {
   account: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { required: true, message: '请输入账号', trigger: 'blur' },
     { min: 5, max: 20, message: '长度在5到20个字符', trigger: 'blur' }
   ],
   password: [

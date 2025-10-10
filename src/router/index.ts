@@ -17,15 +17,26 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/Admin/CollegeView.vue')
       },
       {
-        path: '/test',
-        component: () => import('@/views/Admin/TestView.vue')
+        path: '/admininfo',
+        component: () => import('@/views/Admin/AdminInfo.vue')
       }
     ]
   },
   {
     path: '/collegeadmin',
     component: () => import('@/views/CollegeAdmin/IndexView.vue'),
-    meta: { role: Role.COLLAGE_ADMIN }
+    redirect: '/category',
+    meta: { role: Role.COLLAGE_ADMIN },
+    children: [
+      {
+        path: '/category',
+        component: () => import('@/views/CollegeAdmin/CategoryView.vue')
+      },
+      {
+        path: '/userinfo',
+        component: () => import('@/views/CollegeAdmin/UserInfo.vue')
+      }
+    ]
   }
 ]
 

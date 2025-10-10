@@ -17,9 +17,9 @@
         @change="handleChange" />
     </el-form-item>
 
-    <!-- 用户名 -->
-    <el-form-item label="用户名" prop="account">
-      <el-input v-model="form.account" placeholder="请输入用户名" :prefix-icon="User" />
+    <!-- 账号 -->
+    <el-form-item label="账号" prop="account">
+      <el-input v-model="form.account" placeholder="请输入账号" :prefix-icon="User" />
     </el-form-item>
 
     <!-- 姓名 -->
@@ -179,8 +179,8 @@ const rules = reactive({
     { min: 2, max: 10, message: '姓名长度在2到10个字符', trigger: 'blur' }
   ],
   account: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 10, max: 10, message: '用户名长度为10个字符', trigger: 'blur' }
+    { required: true, message: '请输入账号', trigger: 'blur' },
+    { min: 10, max: 10, message: '账号长度为10个字符', trigger: 'blur' }
   ],
   cascaderValue: [{ required: true, message: '请选择学院和专业', trigger: 'change' }],
   password: [

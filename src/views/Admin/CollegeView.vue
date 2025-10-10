@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full bg-[#F9FAFB] py-4 px-8">
+  <div class="w-full main-container bg-[#F9FAFB] py-4 px-8">
     <!-- 功能栏 -->
     <div
       class="h-[10%] mt-4 bg-white p-4 rounded-xl flex justify-evenly border-gray shadow-sm hover-shadow"
@@ -208,7 +208,6 @@ const getList = async () => {
   try {
     const res = await CollegesAndAdminsService()
     dataList.value = res
-    console.log(dataList.value)
   } catch (error: any) {
     message.error(error)
   }
@@ -366,17 +365,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.main-container {
+  min-height: calc(100vh - 64px);
+}
 ::v-deep .el-table .cell {
   text-align: center;
 }
-.hover-shadow:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 .hover-shadow {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 :deep(.el-form-item__label::before) {

@@ -1,5 +1,8 @@
 import { useDelete, useGet, usePatch, usePost } from '@/axios'
+import { useUserStore } from '@/stores/UserStore'
 import type { College, Userx } from '@/types'
+
+const userStore = useUserStore()
 
 // 管理员获取所有学院和学院管理员
 export const CollegesAndAdminsService = async () => {
@@ -39,4 +42,16 @@ export const editCollegeAdminService = async (id: string, data: Userx) => {
 // 删除学院管理员
 export const deleteCollegeAdminService = async (id: string) => {
   return await useDelete(`admin/users/${id}`)
+}
+
+// 修改密码
+export const updatePasswordService = async (password: Userx) => {
+  return await usePatch(`admin/password`, password)
+}
+
+// 修改个人信息
+export const updateUserInfoService = async (user: Userx) => {
+  const data = await usePatch(`admin/userinfo`, user)
+  userStore.setUser(data)
+  return userStore.UserS
 }

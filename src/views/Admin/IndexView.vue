@@ -6,16 +6,15 @@
         <el-col :span="4">
           <img src="@/assets/images/SchoolBadge2.png" alt="校徽" class="school-badge ml-6" />
         </el-col>
-        <el-col :span="10" :offset="3">
-          <div class="admin-info flex items-center justify-center">
+        <el-col :span="11" :offset="7">
+          <div class="admin-info flex items-center justify-self-end">
             <img src="@/assets/icon/头像.png" alt="头像" class="avatar" />
-            <span class="admin-name">管理员</span>
+            <span class="admin-name">超级管理员</span>
           </div>
         </el-col>
-        <el-col :span="4" :offset="2">
-          <div class="logout-btn flex items-center justify-center cursor-pointer" @click="Logout">
-            <span>退出登录</span>
-            <img src="@/assets/icon/退出.png" alt="退出" class="logout-icon ml-2" />
+        <el-col :span="1" :offset="0">
+          <div class="logout-btn flex items-center cursor-pointer" @click="Logout">
+            <img src="@/assets/icon/退出.png" alt="退出" class="logout-icon ml-10" />
           </div>
         </el-col>
       </el-row>
@@ -24,14 +23,14 @@
     <div class="admin-content">
       <!-- 左侧边栏 -->
       <aside class="sidebar">
-        <el-menu default-active="/college" class="el-menu-vertical-demo" router>
+        <el-menu :default-active="route.path" class="el-menu-vertical-demo" router>
           <el-menu-item index="/college">
             <el-icon><icon-menu /></el-icon>
             <span style="font-weight: bolder">学院管理</span>
           </el-menu-item>
-          <el-menu-item index="/test">
-            <el-icon><icon-menu /></el-icon>
-            <span style="font-weight: bolder">test管理</span>
+          <el-menu-item index="/admininfo">
+            <el-icon><Avatar /></el-icon>
+            <span style="font-weight: bolder">个人中心</span>
           </el-menu-item>
         </el-menu>
       </aside>
@@ -46,11 +45,16 @@
 
 <script setup lang="ts">
 import router from '@/router'
-import { Menu as IconMenu } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/UserStore'
+import { Avatar, Menu as IconMenu } from '@element-plus/icons-vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 // 退出登录
 const Logout = () => {
   sessionStorage.clear()
+  useUserStore().clear()
   router.replace('/')
 }
 </script>
@@ -108,7 +112,7 @@ const Logout = () => {
 }
 
 .logout-btn {
-  padding: 8px 16px;
+  /* padding: 8px 16px; */
   border-radius: 8px;
   color: var(--text-color);
   transition: all 0.3s ease;
@@ -121,8 +125,8 @@ const Logout = () => {
 }
 
 .logout-icon {
-  height: 18px;
-  width: 18px;
+  height: 28px;
+  width: 28px;
 }
 
 .admin-content {
