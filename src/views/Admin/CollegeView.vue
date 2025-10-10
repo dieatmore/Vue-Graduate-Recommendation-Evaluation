@@ -1,288 +1,385 @@
 <template>
-  <div class="college-container">
+  <div class="w-full h-full bg-[#F9FAFB] py-4 px-8">
     <!-- 功能栏 -->
-    <div class="toolbar">
-      <el-form :inline="true" class="search-form">
-        <el-form-item label="专业名称" label-width="80px">
-          <el-input placeholder="请输入专业名称" clearable class="search-input" />
+    <div
+      class="h-[10%] mt-4 bg-white p-4 rounded-xl flex justify-evenly border-gray shadow-sm hover-shadow"
+      style="border-width: 1px">
+      <el-form :inline="true" class="demo-form-inline mt-2" :model="formInline">
+        <el-form-item label="学院名称">
+          <el-input
+            v-model="formInline.collegeName"
+            placeholder="请输入学院名称"
+            clearable
+            style="width: 240px" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" class="btn-search">
-            <Search style="margin-right: 4px" />
+          <el-button type="primary" @click="onSubmit">
+            <Search style="width: 1em; height: 1em; margin-right: 4px" />
             搜索
           </el-button>
         </el-form-item>
         <el-form-item>
-          <el-button class="btn-reset">
-            <RefreshRight style="margin-right: 4px" />
+          <el-button type="primary" @click="resetSearch">
+            <RefreshRight style="width: 1em; height: 1em; margin-right: 4px" />
             重置
           </el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="success" class="btn-add">
-            <Plus style="margin-right: 4px" />
-            新增专业
+          <el-button type="success" class="flex ml-4" @click="openDialog('add')">
+            <Plus style="width: 1em; height: 1em; margin-right: 4px" />
+            新增学院
           </el-button>
         </el-form-item>
       </el-form>
+    </div>
 
-      <!-- 新增专业dialog -->
-      <!-- <el-dialog title="新增专业" width="400px" center>
-        <el-form>
-          <el-form-item label="专业名称" label-width="80px">
-            <el-input autocomplete="off" />
-          </el-form-item>
-        </el-form>
-        <template #footer>
-          <span class="dialog-footer">
-            <el-button>取消</el-button>
-            <el-button type="primary">确认</el-button>
-          </span>
+    <!-- 学院dialog -->
+    <el-dialog
+      v-model="dialogFormVisible"
+      :title="dialogStatus == 'add' ? '添加学院' : '修改学院'"
+      width="400">
+      <el-form :model="addForm" :rules="rulesCol" ref="formColRef">
+        <el-form-item label="学院名称" prop="name">
+          <el-input autocomplete="off" v-model="addForm.name" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleConfirm" :loading="confirmLoading">
+            确认
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 学院管理员dialog -->
+    <el-dialog
+      v-model="dialogAdminFormVisible"
+      :title="dialogAdminStatus == 'add' ? '添加管理员' : '修改管理员'"
+      width="400">
+      <el-form :model="addAdminForm" :rules="rules" ref="formRef">
+        <el-form-item label="管理员账号" prop="account">
+          <el-input autocomplete="off" v-model="addAdminForm.account" />
+        </el-form-item>
+        <el-form-item label="管理员名称" prop="name">
+          <el-input autocomplete="off" v-model="addAdminForm.name" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-popconfirm
+            title="确定删除该管理员吗?"
+            v-if="dialogAdminStatus == 'edit'"
+            confirm-button-text="确认"
+            cancel-button-text="取消"
+            @confirm="handleDeleteAdmin"
+            :loading="deleteAdminLoading">
+            <template #reference>
+              <el-button type="danger">删除该管理员</el-button>
+            </template>
+          </el-popconfirm>
+          <el-button @click="dialogAdminFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleAdminConfirm" :loading="confirmLoading">
+            确认
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 学院列表 -->
+    <el-table
+      class="w-full mt-8 bg-white border-gray shadow-sm rounded-xl hover-shadow"
+      :data="dataList"
+      stripe
+      style="width: 100%; border-width: 1px"
+      height="690"
+      empty-text="暂无专业数据，请添加或刷新">
+      <el-table-column prop="name" label="学院名称">
+        <template #default="scope">
+          <span class="font-medium">{{ scope.row.name }}</span>
+          <el-button
+            type="success"
+            class="flex ml-2"
+            size="medium"
+            plain
+            @click="openAdminDialog('add', scope.row.id)">
+            <Plus style="width: 0.8em; height: 0.8em" class="mr-1" />
+            <span style="font-size: smaller">学院管理员</span>
+          </el-button>
         </template>
-      </el-dialog> -->
-    </div>
+      </el-table-column>
 
-    <!-- 专业列表 -->
-    <div class="table-container">
-      <el-table
-        v-loading="loading"
-        class="data-table"
-        stripe
-        height="calc(100vh - 240px)"
-        empty-text="暂无专业数据，请添加或刷新"
-        :header-cell-style="headerCellStyle"
-        :row-class-name="tableRowClassName">
-        <el-table-column prop="id" label="专业ID" width="200" />
-        <el-table-column prop="name" label="专业名称" min-width="200" />
-        <el-table-column prop="updateTime" label="创建时间" width="220" />
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="scope">
-            <el-button type="primary" plain size="small" class="btn-import mr-2">
-              <Download style="margin-right: 4px" />
-              导入教师
-            </el-button>
-            <el-button type="danger" size="small" class="btn-delete">
-              <DeleteFilled style="margin-right: 4px" />
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
+      <el-table-column label="学院管理员">
+        <template #default="scope">
+          <div v-if="scope.row.users.length === 0" class="text-gray-400 text-sm">暂无管理员</div>
+
+          <div v-else class="admin-list">
+            <span v-for="(admin, index) in scope.row.users" :key="admin.id" class="admin-item">
+              <el-tooltip
+                class="box-item"
+                effect="dark"
+                content="点击查看/修改管理员信息"
+                placement="top">
+                <el-button
+                  type="info"
+                  :icon="Edit"
+                  size="small"
+                  @click="openAdminDialog('edit', scope.row.id, scope.row.users[index])">
+                  {{ admin.name }}
+                </el-button>
+              </el-tooltip>
+              <span v-if="index < scope.row.users.length - 1" class="separator mx-1">&</span>
+            </span>
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="操作">
+        <template #default="scope">
+          <el-button type="primary" plain @click="openDialog('edit', scope.row)">
+            <EditPen style="width: 1em; height: 1em; margin-right: 4px" />
+            修改学院
+          </el-button>
+          <el-popconfirm
+            title="确定删除该学院吗?"
+            confirm-button-text="确认"
+            cancel-button-text="取消"
+            @confirm="handleDelete(scope.row.id)">
+            <template #reference>
+              <el-button type="danger" :loading="deleteLoading" plain>
+                <DeleteFilled style="width: 1em; height: 1em; margin-right: 4px" />
+                删除
+              </el-button>
+            </template>
+          </el-popconfirm>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
-  <TeacherFile ref="formRef" />
 </template>
-
 <script setup lang="ts">
-import { DeleteFilled, Download, Plus, RefreshRight, Search } from '@element-plus/icons-vue'
-import { ref } from 'vue'
+import { useMessage } from '@/components/message'
+import {
+  addCollegeAdminService,
+  addCollegeService,
+  CollegesAndAdminsService,
+  deleteCollegeAdminService,
+  deleteCollegeService,
+  editCollegeAdminService,
+  editCollegeService,
+  SearchCollegeService
+} from '@/services/Admin'
+import type { CollegeAndAdmin, Userx } from '@/types'
+import { DeleteFilled, Edit, EditPen, Plus, RefreshRight, Search } from '@element-plus/icons-vue'
+import type { FormInstance } from 'element-plus'
+import { onMounted, reactive, ref } from 'vue'
 
-const loading = ref(false)
-const formRef = ref()
+const message = useMessage()
+const formRef = ref<FormInstance>()
+const formColRef = ref<FormInstance>()
+const dataList = ref([])
+const dialogFormVisible = ref(false)
+const dialogAdminFormVisible = ref(false)
+const confirmLoading = ref(false)
+const deleteLoading = ref(false)
+const deleteAdminLoading = ref(false)
+const dialogStatus = ref('add') // add or edit
+const dialogAdminStatus = ref('add') // add or edit
+const thisCollegeAndAdmin = ref<CollegeAndAdmin>() // 当前操作的学院和管理员
+const thisId = ref('') // 当前操作的学院id
+const thisAdmin = ref<Userx>() // 当前操作的管理员
 
-// 表格样式配置
-const headerCellStyle = () => {
-  return {
-    backgroundColor: '#f8fafc',
-    fontWeight: 500,
-    color: '#334155',
-    fontSize: '14px'
+const formInline = ref({
+  collegeName: ''
+})
+
+const addForm = ref({
+  name: ''
+})
+
+const addAdminForm = ref({
+  account: '',
+  name: ''
+})
+
+// 获取学院和学院管理员列表
+const getList = async () => {
+  try {
+    const res = await CollegesAndAdminsService()
+    dataList.value = res
+    console.log(dataList.value)
+  } catch (error: any) {
+    message.error(error)
   }
 }
 
-const tableRowClassName = ({ rowIndex }: { rowIndex: number }) => {
-  return rowIndex % 2 === 0 ? 'even-row' : 'odd-row'
+// 搜索学院
+const onSubmit = async () => {
+  if (!formInline.value.collegeName) {
+    message.warning('请输入学院名称') // 空值校验
+    return
+  }
+  try {
+    const res = await SearchCollegeService(formInline.value.collegeName)
+    if (res.length == 0) {
+      message.warning('未找到匹配的学院')
+    } else {
+      dataList.value = res
+      console.log('搜索到的：', dataList.value)
+    }
+  } catch (e: any) {
+    message.error('搜索失败: ' + e)
+  }
 }
+
+// 重置所有学院
+const resetSearch = async () => {
+  formInline.value.collegeName = ''
+  getList()
+}
+
+// 操作学院
+const handleConfirm = async () => {
+  const formRule = await formColRef.value?.validate()
+  if (!formRule) return
+  try {
+    confirmLoading.value = true
+    if (dialogStatus.value === 'edit') {
+      await editCollegeService(thisCollegeAndAdmin.value?.id as string, addForm.value)
+      dialogFormVisible.value = false
+      message.success('修改成功！')
+      getList()
+    } else {
+      await addCollegeService(addForm.value)
+      dialogFormVisible.value = false
+      message.success('添加成功！')
+      getList()
+    }
+  } catch (error: any) {
+    message.error(error)
+  } finally {
+    confirmLoading.value = false
+  }
+}
+
+// 操作管理员
+const handleAdminConfirm = async () => {
+  const formRule = await formRef.value?.validate()
+  if (!formRule) return
+  try {
+    confirmLoading.value = true
+    if (dialogAdminStatus.value === 'edit') {
+      await editCollegeAdminService(thisAdmin.value?.id as string, addAdminForm.value)
+      dialogAdminFormVisible.value = false
+      message.success('修改成功！')
+      getList()
+    } else {
+      await addCollegeAdminService(thisId.value as string, addAdminForm.value)
+      dialogAdminFormVisible.value = false
+      message.success('添加成功！')
+      getList()
+    }
+  } catch (error: any) {
+    message.error(error)
+  } finally {
+    confirmLoading.value = false
+  }
+}
+
+// 删除管理员
+const handleDeleteAdmin = async () => {
+  try {
+    deleteAdminLoading.value = true
+    await deleteCollegeAdminService(thisAdmin.value?.id as string)
+    dialogAdminFormVisible.value = false
+    message.success('删除成功！')
+    getList()
+  } catch (error: any) {
+    message.error(error)
+  } finally {
+    deleteAdminLoading.value = false
+  }
+}
+
+// 删除学院
+const handleDelete = async (id: string) => {
+  deleteLoading.value = true
+  try {
+    await deleteCollegeService(id)
+    message.success('删除成功!')
+    getList()
+  } catch (error: any) {
+    message.error(error)
+  } finally {
+    deleteLoading.value = false
+  }
+}
+
+// 打开学院dialog
+const openDialog = (status: string, data?: CollegeAndAdmin) => {
+  dialogFormVisible.value = true
+  dialogStatus.value = status
+  if (status == 'add') addForm.value.name = ''
+  else addForm.value.name = data?.name as string
+  if (data) thisCollegeAndAdmin.value = data
+}
+
+// 打开学院管理员dialog
+const openAdminDialog = (status: string, collegeId?: string, data?: Userx) => {
+  dialogAdminFormVisible.value = true
+  dialogAdminStatus.value = status
+  if (status == 'add') {
+    addAdminForm.value.account = ''
+    addAdminForm.value.name = ''
+    thisId.value = collegeId as string
+  } else {
+    addAdminForm.value.account = data?.account as string
+    addAdminForm.value.name = data?.name as string
+    if (data) thisAdmin.value = data
+  }
+}
+
+// 管理员表单验证规则
+const rules = reactive({
+  account: [
+    { required: true, message: '请输入账号', trigger: 'blur' },
+    { min: 10, max: 10, message: '用户名长度为10个字符', trigger: 'blur' }
+  ],
+  name: [
+    { required: true, message: '请输入名称', trigger: 'blur' },
+    { min: 2, max: 10, message: '姓名长度在2到10个字符', trigger: 'blur' }
+  ]
+})
+
+// 学院表单验证规则
+const rulesCol = reactive({
+  name: [
+    { required: true, message: '请输入名称', trigger: 'blur' },
+    { min: 2, max: 10, message: '姓名长度在2到10个字符', trigger: 'blur' }
+  ]
+})
+
+onMounted(() => {
+  getList()
+})
 </script>
 
 <style scoped>
-:root {
-  --primary-color: #165dff;
-  --success-color: #00b42a;
-  --danger-color: #f53f3f;
-  --bg-color: #f8fafc;
-  --text-color: #334155;
-  --border-color: #e2e8f0;
-  --hover-bg: #eff6ff;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.college-container {
-  padding: 20px;
-  background-color: var(--bg-color);
-  min-height: 100%;
-}
-
-.toolbar {
-  background-color: white;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow);
-  transition: all 0.3s ease;
-}
-
-.toolbar:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.search-form {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.search-input {
-  width: 300px;
-  border-radius: 8px !important;
-  transition: all 0.3s ease;
-}
-
-.search-input:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.1);
-}
-
-.btn-search,
-.btn-reset,
-.btn-add {
-  border-radius: 8px;
-  padding: 8px 16px;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.btn-search:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(22, 93, 255, 0.3);
-}
-
-.btn-reset:hover {
-  background-color: var(--hover-bg);
-  color: var(--primary-color);
-}
-
-.btn-add {
-  background-color: var(--success-color);
-  border-color: var(--success-color);
-}
-
-.btn-add:hover {
-  background-color: #00a329;
-  border-color: #00a329;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 180, 42, 0.3);
-}
-
-.table-container {
-  background-color: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: var(--shadow);
-  transition: all 0.3s ease;
-}
-
-.table-container:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.data-table {
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.data-table::v-deep .el-table__inner-wrapper {
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.data-table::v-deep .el-table__header {
-  border-bottom: 2px solid var(--border-color);
-}
-
-.data-table::v-deep .el-table__body {
-  font-size: 14px;
-}
-
-.data-table::v-deep .el-table__body tr {
-  transition: all 0.3s ease;
-}
-
-.data-table::v-deep .el-table__body tr:hover {
-  background-color: var(--hover-bg);
-  transform: scale(1.002);
-}
-
-.data-table::v-deep .el-table__body-wrapper {
-  border-radius: 0 0 8px 8px;
-}
-
-.data-table::v-deep .el-table .cell {
+::v-deep .el-table .cell {
   text-align: center;
-  padding: 12px 8px;
+}
+.hover-shadow:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.even-row {
-  background-color: #fefefe;
+.hover-shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-.odd-row {
-  background-color: #fafafa;
-}
-
-.btn-import,
-.btn-delete {
-  border-radius: 6px;
-  padding: 4px 12px;
-  transition: all 0.3s ease;
-  font-size: 12px;
-}
-
-.btn-import:hover {
-  background-color: var(--hover-bg);
-  color: var(--primary-color);
-  border-color: var(--primary-color);
-}
-
-.btn-delete {
-  background-color: #fff1f0;
-  border-color: #ffccc7;
-}
-
-.btn-delete:hover {
-  background-color: #ffccc7;
-  border-color: var(--danger-color);
-  box-shadow: 0 2px 4px rgba(245, 63, 63, 0.2);
-}
-
-/* 响应式设计 */
-@media (max-width: 1200px) {
-  .search-input {
-    width: 250px;
-  }
-}
-
-@media (max-width: 768px) {
-  .college-container {
-    padding: 10px;
-  }
-
-  .search-input {
-    width: 100%;
-  }
-
-  .search-form {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .toolbar {
-    padding: 15px;
-  }
-
-  .table-container {
-    padding: 15px;
-  }
+:deep(.el-form-item__label::before) {
+  content: none !important;
 }
 </style>

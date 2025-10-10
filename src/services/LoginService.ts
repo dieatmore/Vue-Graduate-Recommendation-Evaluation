@@ -1,10 +1,12 @@
 import axios, { useGet, usePost } from '@/axios'
 import { useMessage } from '@/components/message'
 import router from '@/router'
+import { useUserStore } from '@/stores/UserStore'
 // import { useUserStore } from '@/stores/UserStore'
 import { Role, type ResultVO, type Userx } from '@/types'
 
 const message = useMessage()
+const userStore = useUserStore()
 
 // 登录请求
 export const loginService = async (user: Userx) => {
@@ -13,24 +15,27 @@ export const loginService = async (user: Userx) => {
     const resp = await axios.post<ResultVO>('open/login', user)
     const data = resp.data.data
     const token = resp.headers.token
-    let role = resp.headers.role
+    const role = resp.headers.role
     if (!data || !token || !role) {
       message.error('登录错误')
     }
     sessionStorage.setItem('token', token)
-
-    // to do 用户信息存储
-    // userStore.setUser(data)
-    // userStore.UserS.value = data
-
+    sessionStorage.setItem('role', role)
+    userStore.setUser(data)
+    userStore.UserS.value = data
     if (role === Role.ADMIN) {
       path = '/admin'
+    } else if (role === Role.COLLAGE_ADMIN) {
+      path = '/collegeadmin'
+    } else if (role === Role.TEACHER) {
+      path = '/teacher'
+    } else if (role === Role.STUDENT) {
+      path = '/student'
     }
-    sessionStorage.setItem('role', role)
   } catch (err: any) {
     message.error(err)
   } finally {
-    path && router.push(path)
+    if (path) router.push(path)
   }
 }
 

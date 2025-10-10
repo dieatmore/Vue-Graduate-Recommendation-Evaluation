@@ -4,9 +4,9 @@
     <header class="admin-header">
       <el-row class="items-center h-full">
         <el-col :span="4">
-          <img src="@/assets/images/SchoolBadge.png" alt="校徽" class="school-badge" />
+          <img src="@/assets/images/SchoolBadge2.png" alt="校徽" class="school-badge ml-6" />
         </el-col>
-        <el-col :span="10" :offset="4">
+        <el-col :span="10" :offset="3">
           <div class="admin-info flex items-center justify-center">
             <img src="@/assets/icon/头像.png" alt="头像" class="avatar" />
             <span class="admin-name">管理员</span>
@@ -24,20 +24,14 @@
     <div class="admin-content">
       <!-- 左侧边栏 -->
       <aside class="sidebar">
-        <el-menu
-          default-active="/college"
-          class="menu"
-          router
-          background-color="#f8fafc"
-          text-color="#334155"
-          active-text-color="#165dff">
-          <el-menu-item index="/college" class="menu-item">
+        <el-menu default-active="/college" class="el-menu-vertical-demo" router>
+          <el-menu-item index="/college">
             <el-icon><icon-menu /></el-icon>
-            <span>学院管理</span>
+            <span style="font-weight: bolder">学院管理</span>
           </el-menu-item>
-          <el-menu-item index="/college" class="menu-item">
+          <el-menu-item index="/test">
             <el-icon><icon-menu /></el-icon>
-            <span>专业管理</span>
+            <span style="font-weight: bolder">test管理</span>
           </el-menu-item>
         </el-menu>
       </aside>
@@ -71,8 +65,8 @@ const Logout = () => {
 }
 
 .admin-layout {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-color);
@@ -144,29 +138,14 @@ const Logout = () => {
   box-shadow: 1px 0 3px rgba(0, 0, 0, 0.05);
 }
 
-.menu {
-  border-right: none !important;
-  min-height: 100%;
-}
-
-.menu-item {
-  padding: 16px 20px !important;
-  margin: 4px 8px !important;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.menu-item:hover {
-  background-color: var(--hover-bg) !important;
-}
-
-.menu-item.is-active {
-  background-color: var(--hover-bg) !important;
-}
-
 .main-content {
   flex: 1;
   overflow-y: auto;
   background-color: var(--bg-color);
+}
+
+:deep(.el-menu--vertical:not(.el-menu--collapse):not(.el-menu--popup-container) .el-menu-item) {
+  justify-content: center;
+  font-size: large;
 }
 </style>

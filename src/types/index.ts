@@ -52,3 +52,10 @@ export interface Major {
   createTime?: string
   insertTime?: string
 }
+
+// 学院和学院管理员
+export interface CollegeAndAdmin {
+  id?: string
+  name?: string
+  Users?: Userx[]
+}
