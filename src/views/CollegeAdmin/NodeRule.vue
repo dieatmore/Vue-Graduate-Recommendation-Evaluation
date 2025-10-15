@@ -12,6 +12,7 @@
     <!-- 节点dialog -->
     <el-dialog
       v-model="dialogFormVisible"
+      @close="handleClose"
       :title="dialogStatus == 'add' ? '添加类别' : '修改类别'"
       width="400">
       <el-form :model="addForm" ref="formRef">
@@ -46,7 +47,7 @@
       style="border-width: 1px">
       <el-tree
         class="w-full"
-        :data="nodeRules"
+        :data="nodeRulesS[route.params.categoryId as string]"
         node-key="id"
         draggable
         @node-drag-end="handleDragEnd"
@@ -109,18 +110,19 @@
 <script setup lang="ts">
 import { useMessage } from '@/components/message'
 import { CollegeAdmin } from '@/services/CollegeAdmin'
-import { useNodeRulesStore } from '@/stores/NodeRuleStore'
 import type { TargetNode, TargetNodeTreeDTO } from '@/types'
 import { Plus } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 import { ElMessageBox } from 'element-plus'
 import type Node from 'element-plus/es/components/tree/src/model/node'
-import { computed, ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const message = useMessage()
 const route = useRoute()
-const nodeRuleStore = useNodeRulesStore() // 节点规则store
+const nodeRulesS = await CollegeAdmin.getAllNodeRulesService(route.params.categoryId as string)
+console.log(nodeRulesS)
+
 const dialogFormVisible = ref(false)
 const dialogStatus = ref('add') // add or edit
 const formRef = ref<FormInstance>()
@@ -133,21 +135,6 @@ const addForm = ref<TargetNode>({
   maxNumber: 0,
   comment: ''
 })
-
-const nodeRules = computed(() => {
-  return nodeRuleStore.nodeRulesS.value?.[route.params.categoryId as string]
-})
-
-CollegeAdmin.getAllNodeRulesService(route.params.categoryId as string) // 初始化
-watch(
-  () => route.params.categoryId,
-  async newVal => {
-    if (newVal) {
-      await CollegeAdmin.getAllNodeRulesService(newVal as string)
-    }
-  },
-  { immediate: true }
-)
 
 type openParams =
   | { status: 'add'; id: string; data?: never }
@@ -177,8 +164,6 @@ const openDialog = (params: openParams) => {
 // 查看规则说明
 const openComment = (comment: string) => {
   ElMessageBox.alert(`${comment}`, '规则说明', {
-    // if you want to disable its autofocus
-    // autofocus: false,
     confirmButtonText: 'OK'
   })
 }
@@ -191,11 +176,16 @@ const handleDelete = async (id: string) => {
 
 // 操作节点
 const handleConfirm = async () => {
-  const formRule = await formRef.value?.validate()
-  if (!formRule) return
+  await formRef.value?.validate()
   await CollegeAdmin.updateNodeRuleService(route.params.categoryId as string, addForm.value)
   dialogFormVisible.value = false
   message.success('更新成功！')
+}
+
+// 关闭dialog
+const handleClose = () => {
+  dialogFormVisible.value = false
+  formRef.value?.resetFields()
 }
 
 // 拖拽节点

@@ -108,9 +108,8 @@
 </template>
 
 <script setup lang="ts">
-import router from '@/router'
 import { CollegeAdmin } from '@/services/CollegeAdmin'
-import { useCategoryStore } from '@/stores/CategoryStore'
+import { LogoutService } from '@/services/LoginService'
 import { useUserStore } from '@/stores/UserStore'
 import {
   Avatar,
@@ -127,20 +126,13 @@ import { useRoute } from 'vue-router'
 
 const isCollapse = ref(false)
 const userStore = useUserStore()
-const categoryStore = useCategoryStore()
-const categoryList = categoryStore.categorysS
+const categoryList = await CollegeAdmin.getCategoryService()
 const user = userStore.UserS
 
-CollegeAdmin.getCategoryService() // 初始化
 const route = useRoute()
 
 // 退出登录
-const Logout = () => {
-  sessionStorage.clear()
-  userStore.clear()
-  categoryStore.clear()
-  router.replace('/')
-}
+const Logout = () => LogoutService()
 </script>
 
 <style scoped>

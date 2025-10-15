@@ -65,7 +65,7 @@ import { useMessage } from '@/components/message'
 import { CollegesAndMajorsService, RegisterService } from '@/services/LoginService'
 import { EditPen, Lock, User } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 
 const emit = defineEmits<{
   switch: []
@@ -99,7 +99,7 @@ const switchToLogin = () => {
 }
 
 // 级联选择器配置
-const props = reactive({
+const props = ref({
   expandTrigger: 'hover' as const, //  hover 展开子选项
   value: 'id', // 选项的 value 字段
   label: 'name', // 选项的 label 字段
@@ -119,7 +119,6 @@ const handleChange = (value: any[]) => {
   const college = options.value.find((item: any) => {
     return item.id === collegeId
   }) as any
-  console.log('xueyuan:', college)
   let categoryId = ''
   if (college) {
     const major = college.majors.find((majorItem: any) => {
@@ -144,8 +143,7 @@ const form = ref({
 })
 
 const handleRegister = async () => {
-  const formRule = await formRef.value?.validate()
-  if (!formRule) return
+  await formRef.value?.validate()
   const registerData = {
     account: form.value.account,
     password: form.value.password,
@@ -160,7 +158,7 @@ const handleRegister = async () => {
 }
 
 // 表单验证规则
-const rules = reactive({
+const rules = ref({
   name: [
     { required: true, message: '请输入姓名', trigger: 'blur' },
     { min: 2, max: 10, message: '姓名长度在2到10个字符', trigger: 'blur' }

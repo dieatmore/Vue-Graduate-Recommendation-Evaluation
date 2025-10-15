@@ -37,6 +37,7 @@
     <el-dialog
       v-model="dialogFormVisible"
       :title="dialogStatus == 'add' ? '添加学院' : '修改学院'"
+      @close="handleClose"
       width="400">
       <el-form :model="addForm" :rules="rulesCol" ref="formColRef">
         <el-form-item label="学院名称" prop="name">
@@ -55,6 +56,7 @@
     <el-dialog
       v-model="dialogAdminFormVisible"
       :title="dialogAdminStatus == 'add' ? '添加管理员' : '修改管理员'"
+      @close="handleClose"
       width="400">
       <el-form :model="addAdminForm" :rules="rules" ref="formRef">
         <el-form-item label="管理员账号" prop="account">
@@ -159,7 +161,7 @@ import { Admin } from '@/services/Admin'
 import type { CollegeAndAdmin, Userx } from '@/types'
 import { DeleteFilled, Edit, EditPen, Plus, RefreshRight, Search } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 
 const message = useMessage()
 const formRef = ref<FormInstance>()
@@ -215,8 +217,7 @@ const resetSearch = async () => {
 
 // 操作学院
 const handleConfirm = async () => {
-  const formRule = await formColRef.value?.validate()
-  if (!formRule) return
+  await formColRef.value?.validate()
   if (dialogStatus.value === 'edit') {
     await Admin.editCollegeService(thisCollegeAndAdmin.value?.id as string, addForm.value)
     dialogFormVisible.value = false
@@ -232,8 +233,7 @@ const handleConfirm = async () => {
 
 // 操作管理员
 const handleAdminConfirm = async () => {
-  const formRule = await formRef.value?.validate()
-  if (!formRule) return
+  await formRef.value?.validate()
   if (dialogAdminStatus.value === 'edit') {
     await Admin.editCollegeAdminService(thisAdmin.value?.id as string, addAdminForm.value)
     dialogAdminFormVisible.value = false
@@ -262,6 +262,14 @@ const handleDelete = async (id: string) => {
   getList()
 }
 
+// 关闭dialog
+const handleClose = () => {
+  dialogFormVisible.value = false
+  dialogAdminFormVisible.value = false
+  formRef.value?.resetFields()
+  formColRef.value?.resetFields()
+}
+
 // 打开学院dialog
 const openDialog = (status: string, data?: CollegeAndAdmin) => {
   dialogFormVisible.value = true
@@ -287,7 +295,7 @@ const openAdminDialog = (status: string, collegeId?: string, data?: Userx) => {
 }
 
 // 管理员表单验证规则
-const rules = reactive({
+const rules = ref({
   account: [
     { required: true, message: '请输入账号', trigger: 'blur' },
     { min: 10, max: 10, message: '用户名长度为10个字符', trigger: 'blur' }
@@ -299,7 +307,7 @@ const rules = reactive({
 })
 
 // 学院表单验证规则
-const rulesCol = reactive({
+const rulesCol = ref({
   name: [
     { required: true, message: '请输入名称', trigger: 'blur' },
     { min: 2, max: 10, message: '姓名长度在2到10个字符', trigger: 'blur' }

@@ -52,11 +52,11 @@ const deleteCategoryService = async (id: string) => {
 // 获取所有规则节点
 const getAllNodeRulesService = async (catId: string) => {
   if (noderuleStore.nodeRulesS.value?.[catId]?.length) {
-    return noderuleStore.nodeRulesS.value[catId]
+    return noderuleStore.nodeRulesS
   }
   const data = await useGet(`collegeadmin/categorys/${catId}/targetnodes`)
   noderuleStore.setNodeRules(catId, data)
-  return noderuleStore.nodeRulesS.value[catId]
+  return noderuleStore.nodeRulesS
 }
 
 // 新增/修改规则节点

@@ -33,6 +33,7 @@
     <el-dialog
       v-model="dialogFormVisible"
       :title="dialogStatus == 'add' ? '添加类别' : '修改类别'"
+      @close="handleClose"
       width="400">
       <el-form :model="addForm" :rules="rules" ref="formRef">
         <el-form-item label="类别名称" prop="name">
@@ -90,15 +91,13 @@
 <script setup lang="ts">
 import { useMessage } from '@/components/message'
 import { CollegeAdmin } from '@/services/CollegeAdmin'
-import { useCategoryStore } from '@/stores/CategoryStore'
 import type { Category } from '@/types'
 import { DeleteFilled, EditPen, Plus, RefreshRight, Search } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 
 const message = useMessage()
-const categoryStore = useCategoryStore()
-const categoryList = categoryStore.categorysS
+const categoryList = await CollegeAdmin.getCategoryService() // 初始化
 const dialogFormVisible = ref(false)
 const dialogStatus = ref('add') // add or edit
 const formRef = ref<FormInstance>()
@@ -107,8 +106,6 @@ const addForm = ref({
   name: '',
   weight: ''
 })
-
-CollegeAdmin.getCategoryService() // 初始化
 
 // 打开类别dialog
 const openDialog = (status: string, data?: Category) => {
@@ -126,8 +123,7 @@ const openDialog = (status: string, data?: Category) => {
 
 // 操作类别
 const handleConfirm = async () => {
-  const formRule = await formRef.value?.validate()
-  if (!formRule) return
+  await formRef.value?.validate()
   if (dialogStatus.value === 'edit') {
     // await Admin.editCollegeService(thisCollegeAndAdmin.value?.id as string, addForm.value)
     // dialogFormVisible.value = false
@@ -147,8 +143,14 @@ const handleDelete = async (id: string) => {
   message.success('删除成功!')
 }
 
+// 关闭dialog
+const handleClose = () => {
+  dialogFormVisible.value = false
+  formRef.value?.resetFields()
+}
+
 // 学院表单验证规则
-const rules = reactive({
+const rules = ref({
   name: [
     { required: true, message: '请输入名称', trigger: 'blur' },
     { min: 2, max: 10, message: '姓名长度在2到10个字符', trigger: 'blur' }

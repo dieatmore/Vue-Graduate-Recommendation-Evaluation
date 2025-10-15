@@ -1,12 +1,16 @@
 import axios, { useGet, usePost } from '@/axios'
 import { useMessage } from '@/components/message'
 import router from '@/router'
+import { useCategoryStore } from '@/stores/CategoryStore'
+import { useNodeRulesStore } from '@/stores/NodeRuleStore'
 import { useUserStore } from '@/stores/UserStore'
 // import { useUserStore } from '@/stores/UserStore'
 import { Role, type ResultVO, type Userx } from '@/types'
 
 const message = useMessage()
 const userStore = useUserStore()
+const categoryStore = useCategoryStore()
+const noderuleStore = useNodeRulesStore()
 
 // 登录请求
 export const loginService = async (user: Userx) => {
@@ -47,4 +51,13 @@ export const CollegesAndMajorsService = async () => {
 // 学生注册
 export const RegisterService = async (user: Userx) => {
   return await usePost('open/register', user)
+}
+
+// 退出登录
+export const LogoutService = () => {
+  sessionStorage.clear()
+  userStore.clear()
+  categoryStore.clear()
+  noderuleStore.clear()
+  router.replace('/')
 }

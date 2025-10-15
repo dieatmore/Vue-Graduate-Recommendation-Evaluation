@@ -62,7 +62,7 @@
       </div>
 
       <!-- 修改密码dialog -->
-      <el-dialog v-model="dialogFormVisible1" title="修改密码" width="400">
+      <el-dialog v-model="dialogFormVisible1" title="修改密码" width="400" @close="handleClose">
         <el-form :rules="rules" :model="form" ref="formRef">
           <el-form-item label="密码" prop="password">
             <el-input
@@ -91,7 +91,7 @@
       </el-dialog>
 
       <!-- 更新信息dialog -->
-      <el-dialog v-model="dialogFormVisible2" title="更新详细信息" width="400">
+      <el-dialog v-model="dialogFormVisible2" title="更新详细信息" width="400" @close="handleClose">
         <el-form :rules="rulesUser" :model="newUser" ref="formUserRef">
           <el-form-item label="账号" prop="account">
             <el-input v-model="newUser.account" autocomplete="off" :rows="4" />
@@ -121,7 +121,7 @@ import { useUserStore } from '@/stores/UserStore'
 import type { Userx } from '@/types'
 import { EditPen, House, Iphone, Lock, User } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 
 const userStore = useUserStore()
 const user = userStore.UserS
@@ -168,8 +168,7 @@ const openDialog2 = () => {
 
 // 修改密码
 const handleConfirm1 = async () => {
-  const formRule = await formRef.value?.validate()
-  if (!formRule) return
+  await formRef.value?.validate()
   console.log(form.value.password)
   await CollegeAdmin.updatePasswordService(form.value as Userx)
   message.success('密码修改成功，请重新登录！')
@@ -178,17 +177,24 @@ const handleConfirm1 = async () => {
   router.replace('/')
 }
 
+// 关闭dialog
+const handleClose = () => {
+  dialogFormVisible1.value = false
+  dialogFormVisible2.value = false
+  formRef.value?.resetFields()
+  formUserRef.value?.resetFields()
+}
+
 // 更新信息
 const handleConfirm2 = async () => {
-  const formRule = await formUserRef.value?.validate()
-  if (!formRule) return
+  await formUserRef.value?.validate()
   await CollegeAdmin.updateUserInfoService(newUser.value)
   dialogFormVisible2.value = false
   message.success('更新成功!')
 }
 
 // 表单验证规则
-const rules = reactive({
+const rules = ref({
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 5, max: 20, message: '密码长度在5到20个字符', trigger: 'blur' }
@@ -208,7 +214,7 @@ const rules = reactive({
   ]
 })
 
-const rulesUser = reactive({
+const rulesUser = ref({
   // 账号验证
   name: [
     { required: true, message: '请输入姓名', trigger: 'blur' },

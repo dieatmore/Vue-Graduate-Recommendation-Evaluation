@@ -51,7 +51,7 @@ const form = ref<Userx>({
 })
 
 // 表单验证规则
-const rules = {
+const rules = ref({
   account: [
     { required: true, message: '请输入账号', trigger: 'blur' },
     { min: 5, max: 20, message: '长度在5到20个字符', trigger: 'blur' }
@@ -60,12 +60,11 @@ const rules = {
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 5, max: 20, message: '长度在5到20个字符', trigger: 'blur' }
   ]
-}
+})
 
 // 登录
 const handleLogin = async () => {
-  const formRule = await formRef.value?.validate()
-  if (!formRule) return
+  await formRef.value?.validate()
   await loginService(form.value)
 }
 

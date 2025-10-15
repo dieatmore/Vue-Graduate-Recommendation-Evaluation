@@ -44,19 +44,14 @@
 </template>
 
 <script setup lang="ts">
-import router from '@/router'
-import { useUserStore } from '@/stores/UserStore'
+import { LogoutService } from '@/services/LoginService'
 import { Avatar, Menu as IconMenu } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
 // 退出登录
-const Logout = () => {
-  sessionStorage.clear()
-  useUserStore().clear()
-  router.replace('/')
-}
+const Logout = () => LogoutService()
 </script>
 
 <style scoped>
