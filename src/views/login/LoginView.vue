@@ -14,8 +14,7 @@
         <p class="card-text">推免管理系统</p>
       </div>
 
-      <LoginForm v-if="currentForm === 'login'" @switch-to-register="switchToRegister" />
-      <RegisterForm v-if="currentForm === 'register'" @switch-to-login="switchToLogin" />
+      <component :is="toggle ? LoginForm : RegisterForm" @switch="toggle = !toggle" />
     </el-card>
   </div>
 </template>
@@ -24,17 +23,7 @@ import { ref } from 'vue'
 import LoginForm from './LoginForm.vue'
 import RegisterForm from './RegisterForm.vue'
 
-const currentForm = ref('login')
-
-// 切换到注册表单
-const switchToRegister = () => {
-  currentForm.value = 'register'
-}
-
-// 切换到登录表单
-const switchToLogin = () => {
-  currentForm.value = 'login'
-}
+const toggle = ref(true)
 </script>
 <style scoped>
 .container-img {

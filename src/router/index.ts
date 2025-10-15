@@ -33,6 +33,22 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/CollegeAdmin/CategoryView.vue')
       },
       {
+        path: '/categorys/:categoryId/majors',
+        component: () => import('@/views/CollegeAdmin/MajorView.vue')
+      },
+      {
+        path: '/teachermanage',
+        component: () => import('@/views/CollegeAdmin/TeacherView.vue')
+      },
+      {
+        path: '/categorys/:categoryId/noderules',
+        component: () => import('@/views/CollegeAdmin/NodeRule.vue')
+      },
+      {
+        path: '/resetpassword',
+        component: () => import('@/views/CollegeAdmin/ResetPassword.vue')
+      },
+      {
         path: '/userinfo',
         component: () => import('@/views/CollegeAdmin/UserInfo.vue')
       }

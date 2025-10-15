@@ -55,7 +55,32 @@ export interface Major {
 
 // 学院和学院管理员
 export interface CollegeAndAdmin {
-  id?: string
+  id: string
   name?: string
   Users?: Userx[]
+}
+
+// 规则节点树
+export interface TargetNodeTreeDTO {
+  id?: string
+  parentId: string | null
+  name: string
+  categoryId: string
+  maxMark: number
+  maxNumber?: number
+  comment?: string | null
+  children?: TargetNodeTreeDTO[]
+}
+
+// 规则节点
+export interface TargetNode {
+  id?: string
+  parentId: string | null
+  name: string
+  categoryId: string
+  maxMark: number
+  maxNumber?: number | null
+  comment?: string | null
+  createTime?: string
+  updateTime?: string
 }

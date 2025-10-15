@@ -554,6 +554,10 @@ video {
   display: none;
 }
 
+.collapse {
+  visibility: collapse;
+}
+
 .fixed {
   position: fixed;
 }
@@ -568,6 +572,10 @@ video {
 
 .right-8 {
   right: 2rem;
+}
+
+.float-right {
+  float: right;
 }
 
 .mx-1 {

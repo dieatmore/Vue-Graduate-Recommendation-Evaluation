@@ -1,5 +1,174 @@
 <template>
-  <h1>类别管理</h1>
+  <div class="w-full main-container bg-[#F9FAFB] py-4 px-8">
+    <!-- 功能栏 -->
+    <div
+      class="h-[10%] mt-4 bg-white p-4 rounded-xl flex justify-evenly border-gray shadow-sm hover-shadow"
+      style="border-width: 1px">
+      <el-form :inline="true" class="demo-form-inline mt-2">
+        <el-form-item label="类别名称">
+          <el-input placeholder="请输入类别名称" clearable style="width: 240px" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary">
+            <Search style="width: 1em; height: 1em; margin-right: 4px" />
+            搜索
+          </el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary">
+            <RefreshRight style="width: 1em; height: 1em; margin-right: 4px" />
+            重置
+          </el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="success" class="flex ml-4" @click="openDialog('add')">
+            <Plus style="width: 1em; height: 1em; margin-right: 4px" />
+            新增类别
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <!-- 类别dialog -->
+    <el-dialog
+      v-model="dialogFormVisible"
+      :title="dialogStatus == 'add' ? '添加类别' : '修改类别'"
+      width="400">
+      <el-form :model="addForm" :rules="rules" ref="formRef">
+        <el-form-item label="类别名称" prop="name">
+          <el-input autocomplete="off" v-model="addForm.name" />
+        </el-form-item>
+        <el-form-item label="成绩占比" prop="weight">
+          <el-input autocomplete="off" v-model="addForm.weight" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleConfirm">确认</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 学院列表 -->
+    <el-table
+      class="w-full mt-8 bg-white border-gray shadow-sm rounded-xl hover-shadow"
+      :data="categoryList"
+      stripe
+      style="width: 100%; border-width: 1px"
+      height="690"
+      empty-text="暂无类别数据，请添加或刷新">
+      <el-table-column prop="name" label="类别名称">
+        <template #default="scope">
+          <span class="font-medium">{{ scope.row.name }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="操作">
+        <template #default="scope">
+          <el-button type="primary" plain>
+            <EditPen style="width: 1em; height: 1em; margin-right: 4px" />
+            修改类别
+          </el-button>
+          <el-popconfirm
+            title="确定删除该类别吗?"
+            confirm-button-text="确认"
+            cancel-button-text="取消"
+            @confirm="handleDelete(scope.row.id)">
+            <template #reference>
+              <el-button type="danger" plain>
+                <DeleteFilled style="width: 1em; height: 1em; margin-right: 4px" />
+                删除
+              </el-button>
+            </template>
+          </el-popconfirm>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
 </template>
-<script setup lang="ts"></script>
-<style scoped></style>
+<script setup lang="ts">
+import { useMessage } from '@/components/message'
+import { CollegeAdmin } from '@/services/CollegeAdmin'
+import { useCategoryStore } from '@/stores/CategoryStore'
+import type { Category } from '@/types'
+import { DeleteFilled, EditPen, Plus, RefreshRight, Search } from '@element-plus/icons-vue'
+import type { FormInstance } from 'element-plus'
+import { reactive, ref } from 'vue'
+
+const message = useMessage()
+const categoryStore = useCategoryStore()
+const categoryList = categoryStore.categorysS
+const dialogFormVisible = ref(false)
+const dialogStatus = ref('add') // add or edit
+const formRef = ref<FormInstance>()
+
+const addForm = ref({
+  name: '',
+  weight: ''
+})
+
+CollegeAdmin.getCategoryService() // 初始化
+
+// 打开类别dialog
+const openDialog = (status: string, data?: Category) => {
+  dialogFormVisible.value = true
+  dialogStatus.value = status
+  if (status == 'add') {
+    addForm.value.name = ''
+    addForm.value.weight = ''
+  } else {
+    addForm.value.name = data?.name as string
+    // if (data) thisCollegeAndAdmin.value = data
+    return
+  }
+}
+
+// 操作类别
+const handleConfirm = async () => {
+  const formRule = await formRef.value?.validate()
+  if (!formRule) return
+  if (dialogStatus.value === 'edit') {
+    // await Admin.editCollegeService(thisCollegeAndAdmin.value?.id as string, addForm.value)
+    // dialogFormVisible.value = false
+    // message.success('修改成功！')
+    // getList()
+    return
+  } else {
+    await CollegeAdmin.addCategoryService(addForm.value)
+    dialogFormVisible.value = false
+    message.success('添加成功！')
+  }
+}
+
+// 删除学院
+const handleDelete = async (id: string) => {
+  await CollegeAdmin.deleteCategoryService(id)
+  message.success('删除成功!')
+}
+
+// 学院表单验证规则
+const rules = reactive({
+  name: [
+    { required: true, message: '请输入名称', trigger: 'blur' },
+    { min: 2, max: 10, message: '姓名长度在2到10个字符', trigger: 'blur' }
+  ]
+})
+</script>
+
+<style scoped>
+.main-container {
+  min-height: calc(100vh - 64px);
+}
+::v-deep .el-table .cell {
+  text-align: center;
+}
+.hover-shadow {
+  overflow: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+:deep(.el-form-item__label::before) {
+  content: none !important;
+}
+</style>

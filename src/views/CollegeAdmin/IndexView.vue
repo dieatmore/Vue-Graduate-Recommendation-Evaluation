@@ -22,16 +22,80 @@
 
     <div class="admin-content">
       <!-- 左侧边栏 -->
-      <aside class="sidebar">
-        <el-menu :default-active="route.path" class="el-menu-vertical-demo" router>
+      <aside class="sidebar" :style="{ width: isCollapse ? '60px' : '200px' }">
+        <el-menu
+          :default-active="route.path"
+          class="el-menu-vertical-demo"
+          router
+          :unique-opened="true"
+          :collapse="isCollapse">
           <el-menu-item index="/category">
             <el-icon><icon-menu /></el-icon>
             <span style="font-weight: bolder">类别管理</span>
           </el-menu-item>
+
+          <!-- 专业管理 -->
+          <el-sub-menu index="/major">
+            <template #title>
+              <el-icon><Management /></el-icon>
+              <span style="font-weight: bolder">专业管理</span>
+            </template>
+
+            <!-- 类别子菜单 - 动态生成 -->
+            <el-menu-item
+              v-for="category in categoryList"
+              :key="category.id"
+              :index="`/categorys/${category.id}/majors`">
+              {{ category.name }}
+            </el-menu-item>
+          </el-sub-menu>
+
+          <el-menu-item index="/teachermanage">
+            <el-icon><Opportunity /></el-icon>
+            <span style="font-weight: bolder">导师管理</span>
+          </el-menu-item>
+
+          <!-- 推免规则管理 -->
+          <el-sub-menu index="/noderule">
+            <template #title>
+              <el-icon><List /></el-icon>
+              <span style="font-weight: bolder">推免规则管理</span>
+            </template>
+
+            <!-- 类别子菜单 - 动态生成 -->
+            <el-menu-item
+              v-for="category in categoryList"
+              :key="category.id"
+              :index="`/categorys/${category.id}/noderules`">
+              {{ category.name }}
+            </el-menu-item>
+          </el-sub-menu>
+
+          <el-menu-item index="/resetpassword">
+            <el-icon><Key /></el-icon>
+            <span style="font-weight: bolder">重置密码</span>
+          </el-menu-item>
+
           <el-menu-item index="/userinfo">
             <el-icon><Avatar /></el-icon>
             <span style="font-weight: bolder">个人中心</span>
           </el-menu-item>
+          <div style="float: right; margin-right: 10px">
+            <el-button
+              v-if="!isCollapse"
+              style="float: right; margin-right: 10px"
+              @click="isCollapse = true">
+              <el-icon>
+                <Fold />
+              </el-icon>
+            </el-button>
+
+            <el-button v-if="isCollapse" style="float: right" @click="isCollapse = !isCollapse">
+              <el-icon>
+                <Expand />
+              </el-icon>
+            </el-button>
+          </div>
         </el-menu>
       </aside>
 
@@ -45,19 +109,36 @@
 
 <script setup lang="ts">
 import router from '@/router'
+import { CollegeAdmin } from '@/services/CollegeAdmin'
+import { useCategoryStore } from '@/stores/CategoryStore'
 import { useUserStore } from '@/stores/UserStore'
-import { Avatar, Menu as IconMenu } from '@element-plus/icons-vue'
+import {
+  Avatar,
+  Expand,
+  Fold,
+  Menu as IconMenu,
+  Key,
+  List,
+  Management,
+  Opportunity
+} from '@element-plus/icons-vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
+const isCollapse = ref(false)
 const userStore = useUserStore()
+const categoryStore = useCategoryStore()
+const categoryList = categoryStore.categorysS
 const user = userStore.UserS
 
+CollegeAdmin.getCategoryService() // 初始化
 const route = useRoute()
 
 // 退出登录
 const Logout = () => {
   sessionStorage.clear()
-  useUserStore().clear()
+  userStore.clear()
+  categoryStore.clear()
   router.replace('/')
 }
 </script>
@@ -136,23 +217,30 @@ const Logout = () => {
   flex: 1;
   display: flex;
   overflow: hidden;
+  height: 100%;
 }
-
+:deep(.el-menu--vertical:not(.el-menu--collapse):not(.el-menu--popup-container) .el-menu-item) {
+  justify-content: center;
+  font-size: large;
+}
+:deep(
+  .el-menu--vertical:not(.el-menu--collapse):not(.el-menu--popup-container) .el-sub-menu__title
+) {
+  justify-content: center;
+  font-size: large;
+}
 .sidebar {
-  width: 200px;
   background-color: white;
   border-right: 1px solid var(--border-color);
   box-shadow: 1px 0 3px rgba(0, 0, 0, 0.05);
+  transition: width 0.3s ease;
+  height: 100%;
 }
 
 .main-content {
   flex: 1;
   overflow-y: auto;
   background-color: var(--bg-color);
-}
-
-:deep(.el-menu--vertical:not(.el-menu--collapse):not(.el-menu--popup-container) .el-menu-item) {
-  justify-content: center;
-  font-size: large;
+  transition: width 0.3s ease;
 }
 </style>

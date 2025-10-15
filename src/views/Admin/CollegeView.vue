@@ -46,9 +46,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleConfirm" :loading="confirmLoading">
-            确认
-          </el-button>
+          <el-button type="primary" @click="handleConfirm">确认</el-button>
         </span>
       </template>
     </el-dialog>
@@ -73,16 +71,13 @@
             v-if="dialogAdminStatus == 'edit'"
             confirm-button-text="确认"
             cancel-button-text="取消"
-            @confirm="handleDeleteAdmin"
-            :loading="deleteAdminLoading">
+            @confirm="handleDeleteAdmin">
             <template #reference>
               <el-button type="danger">删除该管理员</el-button>
             </template>
           </el-popconfirm>
           <el-button @click="dialogAdminFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleAdminConfirm" :loading="confirmLoading">
-            确认
-          </el-button>
+          <el-button type="primary" @click="handleAdminConfirm">确认</el-button>
         </span>
       </template>
     </el-dialog>
@@ -94,7 +89,7 @@
       stripe
       style="width: 100%; border-width: 1px"
       height="690"
-      empty-text="暂无专业数据，请添加或刷新">
+      empty-text="暂无学院数据，请添加或刷新">
       <el-table-column prop="name" label="学院名称">
         <template #default="scope">
           <span class="font-medium">{{ scope.row.name }}</span>
@@ -147,7 +142,7 @@
             cancel-button-text="取消"
             @confirm="handleDelete(scope.row.id)">
             <template #reference>
-              <el-button type="danger" :loading="deleteLoading" plain>
+              <el-button type="danger" plain>
                 <DeleteFilled style="width: 1em; height: 1em; margin-right: 4px" />
                 删除
               </el-button>
@@ -160,20 +155,11 @@
 </template>
 <script setup lang="ts">
 import { useMessage } from '@/components/message'
-import {
-  addCollegeAdminService,
-  addCollegeService,
-  CollegesAndAdminsService,
-  deleteCollegeAdminService,
-  deleteCollegeService,
-  editCollegeAdminService,
-  editCollegeService,
-  SearchCollegeService
-} from '@/services/Admin'
+import { Admin } from '@/services/Admin'
 import type { CollegeAndAdmin, Userx } from '@/types'
 import { DeleteFilled, Edit, EditPen, Plus, RefreshRight, Search } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 const message = useMessage()
 const formRef = ref<FormInstance>()
@@ -181,9 +167,6 @@ const formColRef = ref<FormInstance>()
 const dataList = ref([])
 const dialogFormVisible = ref(false)
 const dialogAdminFormVisible = ref(false)
-const confirmLoading = ref(false)
-const deleteLoading = ref(false)
-const deleteAdminLoading = ref(false)
 const dialogStatus = ref('add') // add or edit
 const dialogAdminStatus = ref('add') // add or edit
 const thisCollegeAndAdmin = ref<CollegeAndAdmin>() // 当前操作的学院和管理员
@@ -205,13 +188,9 @@ const addAdminForm = ref({
 
 // 获取学院和学院管理员列表
 const getList = async () => {
-  try {
-    const res = await CollegesAndAdminsService()
-    dataList.value = res
-  } catch (error: any) {
-    message.error(error)
-  }
+  dataList.value = await Admin.CollegesAndAdminsService()
 }
+getList()
 
 // 搜索学院
 const onSubmit = async () => {
@@ -219,16 +198,12 @@ const onSubmit = async () => {
     message.warning('请输入学院名称') // 空值校验
     return
   }
-  try {
-    const res = await SearchCollegeService(formInline.value.collegeName)
-    if (res.length == 0) {
-      message.warning('未找到匹配的学院')
-    } else {
-      dataList.value = res
-      console.log('搜索到的：', dataList.value)
-    }
-  } catch (e: any) {
-    message.error('搜索失败: ' + e)
+  const res = await Admin.SearchCollegeService(formInline.value.collegeName)
+  if (res.length == 0) {
+    message.warning('未找到匹配的学院')
+  } else {
+    dataList.value = res
+    console.log('搜索到的：', dataList.value)
   }
 }
 
@@ -242,23 +217,16 @@ const resetSearch = async () => {
 const handleConfirm = async () => {
   const formRule = await formColRef.value?.validate()
   if (!formRule) return
-  try {
-    confirmLoading.value = true
-    if (dialogStatus.value === 'edit') {
-      await editCollegeService(thisCollegeAndAdmin.value?.id as string, addForm.value)
-      dialogFormVisible.value = false
-      message.success('修改成功！')
-      getList()
-    } else {
-      await addCollegeService(addForm.value)
-      dialogFormVisible.value = false
-      message.success('添加成功！')
-      getList()
-    }
-  } catch (error: any) {
-    message.error(error)
-  } finally {
-    confirmLoading.value = false
+  if (dialogStatus.value === 'edit') {
+    await Admin.editCollegeService(thisCollegeAndAdmin.value?.id as string, addForm.value)
+    dialogFormVisible.value = false
+    message.success('修改成功！')
+    getList()
+  } else {
+    await Admin.addCollegeService(addForm.value)
+    dialogFormVisible.value = false
+    message.success('添加成功！')
+    getList()
   }
 }
 
@@ -266,53 +234,32 @@ const handleConfirm = async () => {
 const handleAdminConfirm = async () => {
   const formRule = await formRef.value?.validate()
   if (!formRule) return
-  try {
-    confirmLoading.value = true
-    if (dialogAdminStatus.value === 'edit') {
-      await editCollegeAdminService(thisAdmin.value?.id as string, addAdminForm.value)
-      dialogAdminFormVisible.value = false
-      message.success('修改成功！')
-      getList()
-    } else {
-      await addCollegeAdminService(thisId.value as string, addAdminForm.value)
-      dialogAdminFormVisible.value = false
-      message.success('添加成功！')
-      getList()
-    }
-  } catch (error: any) {
-    message.error(error)
-  } finally {
-    confirmLoading.value = false
+  if (dialogAdminStatus.value === 'edit') {
+    await Admin.editCollegeAdminService(thisAdmin.value?.id as string, addAdminForm.value)
+    dialogAdminFormVisible.value = false
+    message.success('修改成功！')
+    getList()
+  } else {
+    await Admin.addCollegeAdminService(thisId.value as string, addAdminForm.value)
+    dialogAdminFormVisible.value = false
+    message.success('添加成功！')
+    getList()
   }
 }
 
 // 删除管理员
 const handleDeleteAdmin = async () => {
-  try {
-    deleteAdminLoading.value = true
-    await deleteCollegeAdminService(thisAdmin.value?.id as string)
-    dialogAdminFormVisible.value = false
-    message.success('删除成功！')
-    getList()
-  } catch (error: any) {
-    message.error(error)
-  } finally {
-    deleteAdminLoading.value = false
-  }
+  await Admin.deleteCollegeAdminService(thisAdmin.value?.id as string)
+  dialogAdminFormVisible.value = false
+  message.success('删除成功！')
+  getList()
 }
 
 // 删除学院
 const handleDelete = async (id: string) => {
-  deleteLoading.value = true
-  try {
-    await deleteCollegeService(id)
-    message.success('删除成功!')
-    getList()
-  } catch (error: any) {
-    message.error(error)
-  } finally {
-    deleteLoading.value = false
-  }
+  await Admin.deleteCollegeService(id)
+  message.success('删除成功!')
+  getList()
 }
 
 // 打开学院dialog
@@ -357,10 +304,6 @@ const rulesCol = reactive({
     { required: true, message: '请输入名称', trigger: 'blur' },
     { min: 2, max: 10, message: '姓名长度在2到10个字符', trigger: 'blur' }
   ]
-})
-
-onMounted(() => {
-  getList()
 })
 </script>
 

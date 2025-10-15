@@ -2,7 +2,7 @@
   <div class="w-full main-container bg-[#F9FAFB] py-8 px-40">
     <!-- 个人信息 -->
     <div
-      class="bg-white p-4 rounded-xl border-gray shadow-sm mt-28 py-20 px-12"
+      class="bg-white p-4 rounded-xl border-gray shadow-sm mt-28 py-20 px-12 hower-shadow"
       style="border-width: 1px">
       <el-descriptions class="" title="个人信息" :column="2" border size="large">
         <el-descriptions-item>
@@ -116,16 +116,12 @@
 <script setup lang="ts">
 import { useMessage } from '@/components/message'
 import router from '@/router'
-import {
-  getCollegeService,
-  updatePasswordService,
-  updateUserInfoService
-} from '@/services/CollegeAdmin'
+import { CollegeAdmin } from '@/services/CollegeAdmin'
 import { useUserStore } from '@/stores/UserStore'
 import type { Userx } from '@/types'
 import { EditPen, House, Iphone, Lock, User } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 const userStore = useUserStore()
 const user = userStore.UserS
@@ -150,14 +146,11 @@ const newUser = ref({
 })
 
 // 获取学院名称
-const getDepartmentName = async () => {
-  try {
-    const data = await getCollegeService()
-    collegeName.value = data.name
-  } catch (error: any) {
-    message.error(error)
-  }
+const getCollegeName = async () => {
+  const data = await CollegeAdmin.getCollegeService()
+  collegeName.value = data.name
 }
+getCollegeName()
 
 // 打开弹窗1
 const openDialog1 = () => {
@@ -177,35 +170,21 @@ const openDialog2 = () => {
 const handleConfirm1 = async () => {
   const formRule = await formRef.value?.validate()
   if (!formRule) return
-  try {
-    submitting.value = true
-    console.log(form.value.password)
-    await updatePasswordService(form.value as Userx)
-    message.success('密码修改成功，请重新登录！')
-    userStore.clear()
-    sessionStorage.clear()
-    router.replace('/')
-  } catch (err: any) {
-    message.error(err)
-  } finally {
-    submitting.value = false
-  }
+  console.log(form.value.password)
+  await CollegeAdmin.updatePasswordService(form.value as Userx)
+  message.success('密码修改成功，请重新登录！')
+  userStore.clear()
+  sessionStorage.clear()
+  router.replace('/')
 }
 
 // 更新信息
 const handleConfirm2 = async () => {
   const formRule = await formUserRef.value?.validate()
   if (!formRule) return
-  try {
-    submitting.value = true
-    await updateUserInfoService(newUser.value)
-    dialogFormVisible2.value = false
-    message.success('更新成功!')
-  } catch (err: any) {
-    message.error(err)
-  } finally {
-    submitting.value = false
-  }
+  await CollegeAdmin.updateUserInfoService(newUser.value)
+  dialogFormVisible2.value = false
+  message.success('更新成功!')
 }
 
 // 表单验证规则
@@ -249,10 +228,6 @@ const rulesUser = reactive({
     }
   ]
 })
-
-onMounted(() => {
-  getDepartmentName()
-})
 </script>
 
 <style scoped>
@@ -268,5 +243,11 @@ onMounted(() => {
 }
 :deep(.el-form-item__label::before) {
   content: none !important;
+}
+.hover-shadow {
+  min-height: calc(100vh - 125px);
+  overflow: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>

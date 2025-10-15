@@ -85,7 +85,7 @@
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="dialogFormVisible1 = false">取消</el-button>
-            <el-button type="primary" @click="handleConfirm1" :loading="submitting">确认</el-button>
+            <el-button type="primary" @click="handleConfirm1">确认</el-button>
           </span>
         </template>
       </el-dialog>
@@ -106,7 +106,7 @@
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="dialogFormVisible2 = false">取消</el-button>
-            <el-button type="primary" @click="handleConfirm2" :loading="submitting">确认</el-button>
+            <el-button type="primary" @click="handleConfirm2">确认</el-button>
           </span>
         </template>
       </el-dialog>
@@ -116,7 +116,7 @@
 <script setup lang="ts">
 import { useMessage } from '@/components/message'
 import router from '@/router'
-import { updatePasswordService, updateUserInfoService } from '@/services/Admin'
+import { Admin } from '@/services/Admin'
 import { useUserStore } from '@/stores/UserStore'
 import type { Userx } from '@/types'
 import { EditPen, House, Iphone, Lock, User } from '@element-plus/icons-vue'
@@ -129,7 +129,6 @@ const user = userStore.UserS
 const message = useMessage()
 const dialogFormVisible1 = ref(false)
 const dialogFormVisible2 = ref(false)
-const submitting = ref(false)
 const formRef = ref<FormInstance>()
 const formUserRef = ref<FormInstance>()
 
@@ -162,35 +161,20 @@ const openDialog2 = () => {
 const handleConfirm1 = async () => {
   const formRule = await formRef.value?.validate()
   if (!formRule) return
-  try {
-    submitting.value = true
-    console.log(form.value.password)
-    await updatePasswordService(form.value as Userx)
-    message.success('密码修改成功，请重新登录！')
-    userStore.clear()
-    sessionStorage.clear()
-    router.replace('/')
-  } catch (err: any) {
-    message.error(err)
-  } finally {
-    submitting.value = false
-  }
+  await Admin.updatePasswordService(form.value as Userx)
+  message.success('密码修改成功，请重新登录！')
+  userStore.clear()
+  sessionStorage.clear()
+  router.replace('/')
 }
 
 // 更新信息
 const handleConfirm2 = async () => {
   const formRule = await formUserRef.value?.validate()
   if (!formRule) return
-  try {
-    submitting.value = true
-    await updateUserInfoService(newUser.value)
-    dialogFormVisible2.value = false
-    message.success('更新成功!')
-  } catch (err: any) {
-    message.error(err)
-  } finally {
-    submitting.value = false
-  }
+  await Admin.updateUserInfoService(newUser.value)
+  dialogFormVisible2.value = false
+  message.success('更新成功!')
 }
 
 // 表单验证规则

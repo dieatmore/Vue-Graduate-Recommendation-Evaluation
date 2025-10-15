@@ -55,7 +55,11 @@ export const usePut = async (url: string) => {
 }
 
 export const usePatch = async (url: string, data: unknown) => {
-  const resp = await axios.patch<ResultVO>(url, data)
+  const resp = await axios.patch<ResultVO>(url, data, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
   return resp.data.data
 }
 

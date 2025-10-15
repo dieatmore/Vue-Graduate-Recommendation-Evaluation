@@ -17,7 +17,7 @@
         :prefix-icon="Lock"
         show-password />
     </el-form-item>
-    <el-button type="primary" :loading="loading" class="login-button" @click="handleLogin">
+    <el-button type="primary" class="login-button" @click="handleLogin">
       <img src="../../assets/icon/Login.png" alt="登录" class="mr-1.5" />
       登录
     </el-button>
@@ -40,11 +40,10 @@ import type { FormInstance } from 'element-plus'
 import { ref } from 'vue'
 
 const emit = defineEmits<{
-  'switch-to-register': []
+  switch: []
 }>()
 
 const formRef = ref<FormInstance>()
-const loading = ref(false)
 
 const form = ref<Userx>({
   account: '',
@@ -67,19 +66,12 @@ const rules = {
 const handleLogin = async () => {
   const formRule = await formRef.value?.validate()
   if (!formRule) return
-  try {
-    loading.value = true
-    await loginService(form.value)
-  } catch (error) {
-    console.log(error)
-  } finally {
-    loading.value = false
-  }
+  await loginService(form.value)
 }
 
 // 切换到注册表单
 const switchToRegister = (): void => {
-  emit('switch-to-register')
+  emit('switch')
 }
 </script>
 

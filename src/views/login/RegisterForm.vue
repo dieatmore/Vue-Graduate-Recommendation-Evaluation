@@ -47,7 +47,7 @@
         show-password />
     </el-form-item>
 
-    <el-button type="primary" :loading="loading" class="login-button" @click="handleRegister">
+    <el-button type="primary" class="login-button" @click="handleRegister">
       <img src="../../assets/icon/Register.png" alt="注册" class="mr-1.5" />
       注册
     </el-button>
@@ -65,42 +65,37 @@ import { useMessage } from '@/components/message'
 import { CollegesAndMajorsService, RegisterService } from '@/services/LoginService'
 import { EditPen, Lock, User } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 const emit = defineEmits<{
-  'switch-to-login': []
+  switch: []
 }>()
 
 const message = useMessage()
 const formRef = ref<FormInstance>()
-const loading = ref(false)
 let collegesAndMajors = null // 所有学院和专业
 const options = ref([])
 
 // 获取学院和专业
 const getList = async () => {
-  try {
-    const res = await CollegesAndMajorsService()
-    collegesAndMajors = res
-
-    // 拼接级联选择器选项
-    options.value = collegesAndMajors.map((college: any) => ({
-      id: college.id,
-      name: college.name,
-      majors: college.majors.map((major: any) => ({
-        id: major.id,
-        name: major.name,
-        categoryId: major.categoryId
-      }))
+  collegesAndMajors = await CollegesAndMajorsService()
+  // 拼接级联选择器选项
+  options.value = collegesAndMajors.map((college: any) => ({
+    id: college.id,
+    name: college.name,
+    majors: college.majors.map((major: any) => ({
+      id: major.id,
+      name: major.name,
+      categoryId: major.categoryId
     }))
-  } catch (error) {
-    console.error('获取数据失败！', error)
-  }
+  }))
 }
+
+getList()
 
 // 切换到登录表单
 const switchToLogin = () => {
-  emit('switch-to-login')
+  emit('switch')
 }
 
 // 级联选择器配置
@@ -151,25 +146,17 @@ const form = ref({
 const handleRegister = async () => {
   const formRule = await formRef.value?.validate()
   if (!formRule) return
-  try {
-    loading.value = true
-    // 提交的注册数据
-    const registerData = {
-      account: form.value.account,
-      password: form.value.password,
-      name: form.value.name,
-      collegeId: form.value.collegeId,
-      categoryId: form.value.categoryId,
-      majorId: form.value.majorId
-    }
-    await RegisterService(registerData)
-    message.success('注册成功！')
-    emit('switch-to-login')
-  } catch (error) {
-    message.error('注册失败！' + error)
-  } finally {
-    loading.value = false
+  const registerData = {
+    account: form.value.account,
+    password: form.value.password,
+    name: form.value.name,
+    collegeId: form.value.collegeId,
+    categoryId: form.value.categoryId,
+    majorId: form.value.majorId
   }
+  await RegisterService(registerData)
+  message.success('注册成功！')
+  emit('switch')
 }
 
 // 表单验证规则
@@ -200,10 +187,6 @@ const rules = reactive({
       trigger: 'blur'
     }
   ]
-})
-
-onMounted(() => {
-  getList()
 })
 </script>
 
