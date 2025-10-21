@@ -1,22 +1,37 @@
 import { useDelete, useGet, usePatch, usePost } from '@/axios'
 import { useUserStore } from '@/stores/UserStore'
 import type { College, Userx } from '@/types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { computed, type Ref } from 'vue'
+import { querycachename } from './Const'
 
 const userStore = useUserStore()
 
 // 管理员获取所有学院和学院管理员
-const CollegesAndAdminsService = async () => {
-  return await useGet('admin/collegesadmins')
+const CollegesAndAdminsService = () => {
+  return useQuery({
+    queryKey: [querycachename.college.categoryadminscategories],
+    queryFn: () => useGet('admin/collegesadmins')
+  })
 }
 
 // 搜索学院（名称）
-const SearchCollegeService = async (collegeName: string) => {
-  return await useGet(`admin/collegesadmins/${collegeName}`)
+const SearchCollegeService = (collegeName: Ref<string>) => {
+  return useQuery({
+    queryKey: [querycachename.college.colleges, collegeName],
+    queryFn: () => useGet(`admin/collegesadmins/${collegeName.value}`),
+    enabled: computed(() => !!collegeName.value)
+  })
 }
 
 // 添加学院
-const addCollegeService = async (data: College) => {
-  return await usePost('admin/colleges', data)
+const addCollegeService = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: College) => usePost('admin/colleges', data),
+    onSuccess: () =>
+      qc.refetchQueries({ queryKey: [querycachename.college.categoryadminscategories] })
+  })
 }
 
 // 修改学院

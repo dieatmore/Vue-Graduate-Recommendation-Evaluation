@@ -6,6 +6,8 @@ import { useNodeRulesStore } from '@/stores/NodeRuleStore'
 import { useUserStore } from '@/stores/UserStore'
 // import { useUserStore } from '@/stores/UserStore'
 import { Role, type ResultVO, type Userx } from '@/types'
+import { useQuery } from '@tanstack/vue-query'
+import { querycachename } from './Const'
 
 const message = useMessage()
 const userStore = useUserStore()
@@ -44,8 +46,11 @@ export const loginService = async (user: Userx) => {
 }
 
 // 注册:获取所有学院和专业
-export const CollegesAndMajorsService = async () => {
-  return await useGet('open/register/collegesmajors')
+export const CollegesAndMajorsService = () => {
+  return useQuery({
+    queryKey: [querycachename.college.categoriesmajors],
+    queryFn: () => useGet('open/register/collegesmajors')
+  })
 }
 
 // 学生注册

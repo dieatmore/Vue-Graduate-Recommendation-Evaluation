@@ -161,12 +161,11 @@ import { Admin } from '@/services/Admin'
 import type { CollegeAndAdmin, Userx } from '@/types'
 import { DeleteFilled, Edit, EditPen, Plus, RefreshRight, Search } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const message = useMessage()
 const formRef = ref<FormInstance>()
 const formColRef = ref<FormInstance>()
-const dataList = ref([])
 const dialogFormVisible = ref(false)
 const dialogAdminFormVisible = ref(false)
 const dialogStatus = ref('add') // add or edit
@@ -174,6 +173,7 @@ const dialogAdminStatus = ref('add') // add or edit
 const thisCollegeAndAdmin = ref<CollegeAndAdmin>() // 当前操作的学院和管理员
 const thisId = ref('') // 当前操作的学院id
 const thisAdmin = ref<Userx>() // 当前操作的管理员
+const collegeName = ref('')
 
 const formInline = ref({
   collegeName: ''
@@ -188,32 +188,55 @@ const addAdminForm = ref({
   name: ''
 })
 
-// 获取学院和学院管理员列表
-const getList = async () => {
-  dataList.value = await Admin.CollegesAndAdminsService()
-}
-getList()
+const dataList = ref([])
 
-// 搜索学院
-const onSubmit = async () => {
+// 获取学院和学院管理员列表
+const { data: allList, refetch: refetchAllList } = Admin.CollegesAndAdminsService()
+watch(
+  () => allList.value,
+  newVal => {
+    if (newVal) {
+      dataList.value = newVal
+    }
+  },
+  { immediate: true }
+)
+
+// 根据名字搜索学院
+const { data: collegeByName } = Admin.SearchCollegeService(collegeName)
+watch(
+  () => collegeByName.value,
+  newVal => {
+    if (newVal.length === 0) {
+      message.info('未找到匹配的学院')
+    } else {
+      dataList.value = newVal
+      console.log('搜索到的：', dataList.value)
+    }
+  }
+)
+
+// 提交学院名字
+const onSubmit = () => {
   if (!formInline.value.collegeName) {
     message.warning('请输入学院名称') // 空值校验
     return
   }
-  const res = await Admin.SearchCollegeService(formInline.value.collegeName)
-  if (res.length == 0) {
-    message.warning('未找到匹配的学院')
-  } else {
-    dataList.value = res
-    console.log('搜索到的：', dataList.value)
-  }
+  collegeName.value = formInline.value.collegeName
 }
 
 // 重置所有学院
 const resetSearch = async () => {
   formInline.value.collegeName = ''
-  getList()
+  collegeName.value = ''
+  if (allList.value) {
+    dataList.value = allList.value
+  } else {
+    refetchAllList()
+  }
 }
+
+const addMutation = Admin.addCollegeService() // 添加学院
 
 // 操作学院
 const handleConfirm = async () => {
@@ -222,12 +245,11 @@ const handleConfirm = async () => {
     await Admin.editCollegeService(thisCollegeAndAdmin.value?.id as string, addForm.value)
     dialogFormVisible.value = false
     message.success('修改成功！')
-    getList()
+    // getList()
   } else {
-    await Admin.addCollegeService(addForm.value)
+    await addMutation.mutateAsync(addForm.value)
     dialogFormVisible.value = false
     message.success('添加成功！')
-    getList()
   }
 }
 
@@ -238,12 +260,12 @@ const handleAdminConfirm = async () => {
     await Admin.editCollegeAdminService(thisAdmin.value?.id as string, addAdminForm.value)
     dialogAdminFormVisible.value = false
     message.success('修改成功！')
-    getList()
+    // getList()
   } else {
     await Admin.addCollegeAdminService(thisId.value as string, addAdminForm.value)
     dialogAdminFormVisible.value = false
     message.success('添加成功！')
-    getList()
+    // getList()
   }
 }
 
@@ -252,14 +274,14 @@ const handleDeleteAdmin = async () => {
   await Admin.deleteCollegeAdminService(thisAdmin.value?.id as string)
   dialogAdminFormVisible.value = false
   message.success('删除成功！')
-  getList()
+  // getList()
 }
 
 // 删除学院
 const handleDelete = async (id: string) => {
   await Admin.deleteCollegeService(id)
   message.success('删除成功!')
-  getList()
+  // getList()
 }
 
 // 关闭dialog

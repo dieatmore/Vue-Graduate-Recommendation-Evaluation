@@ -1,9 +1,13 @@
-import { ElMessage, ElNotification } from 'element-plus'
+import { ElNotification } from 'element-plus'
 export const useMessage = () => {
   return {
     // 消息提示
     info(content: string) {
-      ElMessage.info(content)
+      ElNotification({
+        title: '消息！',
+        message: content,
+        type: 'info'
+      })
     },
     // 错误消息
     error(content: string) {
@@ -15,11 +19,19 @@ export const useMessage = () => {
     },
     // 成功消息
     success(content: string) {
-      ElMessage.success(content)
+      ElNotification({
+        title: '成功！',
+        message: content,
+        type: 'success'
+      })
     },
     // 警告消息
     warning(content: string) {
-      ElMessage.warning(content)
+      ElNotification({
+        title: '警告！',
+        message: content,
+        type: 'warning'
+      })
     }
   }
 }

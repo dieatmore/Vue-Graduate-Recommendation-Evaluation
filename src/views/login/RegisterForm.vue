@@ -65,7 +65,7 @@ import { useMessage } from '@/components/message'
 import { CollegesAndMajorsService, RegisterService } from '@/services/LoginService'
 import { EditPen, Lock, User } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const emit = defineEmits<{
   switch: []
@@ -73,14 +73,13 @@ const emit = defineEmits<{
 
 const message = useMessage()
 const formRef = ref<FormInstance>()
-let collegesAndMajors = null // 所有学院和专业
-const options = ref([])
-
-// 获取学院和专业
-const getList = async () => {
-  collegesAndMajors = await CollegesAndMajorsService()
-  // 拼接级联选择器选项
-  options.value = collegesAndMajors.map((college: any) => ({
+const { data: collegesAndMajors } = CollegesAndMajorsService()
+const options = computed(() => {
+  // 判断原始数据是否存在（避免初始状态 undefined 导致报错）
+  if (!collegesAndMajors.value) {
+    return []
+  }
+  return collegesAndMajors.value.map((college: any) => ({
     id: college.id,
     name: college.name,
     majors: college.majors.map((major: any) => ({
@@ -89,9 +88,7 @@ const getList = async () => {
       categoryId: major.categoryId
     }))
   }))
-}
-
-getList()
+})
 
 // 切换到登录表单
 const switchToLogin = () => {
