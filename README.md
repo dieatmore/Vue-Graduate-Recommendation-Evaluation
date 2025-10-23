@@ -33,7 +33,19 @@
 <br/>
 <br/>
 
-引入TanStack Query扩展库，测试学习useQuery以及useMutation
+学习TanStack Query扩展库
+
+- 添加 @tanstack/vue-query 依赖，测试学习useQuery以及useMutation
+
+<br/>
+2025-10-18
+<br/>
+<br/>
+
+- 添加加载视图组件（Suspence）,初始化阻塞加载
+- 更新消息提示功能
+- 增强错误处理逻辑
+- 重构多个表单组件，简化验证规则和关闭对话框的逻辑
 
 <br/>
 2025-10-15
