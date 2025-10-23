@@ -7,50 +7,50 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/login/LoginView.vue')
   },
   {
-    path: '/admin',
-    component: () => import('@/views/Admin/IndexView.vue'),
+    path: '/main/Admin',
+    component: () => import('@/views/main/Admin/IndexView.vue'),
     redirect: '/college',
     meta: { role: Role.ADMIN },
     children: [
       {
         path: '/college',
-        component: () => import('@/views/Admin/CollegeView.vue')
+        component: () => import('@/views/main/Admin/CollegeView.vue')
       },
       {
-        path: '/admininfo',
-        component: () => import('@/views/Admin/AdminInfo.vue')
+        path: '/main/Admininfo',
+        component: () => import('@/views/main/Admin/AdminInfo.vue')
       }
     ]
   },
   {
-    path: '/collegeadmin',
-    component: () => import('@/views/CollegeAdmin/IndexView.vue'),
+    path: '/main/CollegeAdmin',
+    component: () => import('@/views/main/CollegeAdmin/IndexView.vue'),
     redirect: '/category',
     meta: { role: Role.COLLAGE_ADMIN },
     children: [
       {
         path: '/category',
-        component: () => import('@/views/CollegeAdmin/CategoryView.vue')
+        component: () => import('@/views/main/CollegeAdmin/CategoryView.vue')
       },
       {
         path: '/categorys/:categoryId/majors',
-        component: () => import('@/views/CollegeAdmin/MajorView.vue')
+        component: () => import('@/views/main/CollegeAdmin/MajorView.vue')
       },
       {
         path: '/teachermanage',
-        component: () => import('@/views/CollegeAdmin/TeacherView.vue')
+        component: () => import('@/views/main/CollegeAdmin/TeacherView.vue')
       },
       {
         path: '/categorys/:categoryId/noderules',
-        component: () => import('@/views/CollegeAdmin/NodeRule.vue')
+        component: () => import('@/views/main/CollegeAdmin/NodeRule.vue')
       },
       {
         path: '/resetpassword',
-        component: () => import('@/views/CollegeAdmin/ResetPassword.vue')
+        component: () => import('@/views/main/CollegeAdmin/ResetPassword.vue')
       },
       {
         path: '/userinfo',
-        component: () => import('@/views/CollegeAdmin/UserInfo.vue')
+        component: () => import('@/views/main/CollegeAdmin/UserInfo.vue')
       }
     ]
   }

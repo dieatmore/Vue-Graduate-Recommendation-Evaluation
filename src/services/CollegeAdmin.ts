@@ -1,15 +1,11 @@
 import { useDelete, useGet, usePatch, usePost } from '@/axios'
-import { useCategoryStore } from '@/stores/CategoryStore'
-import { useNodeRulesStore } from '@/stores/NodeRuleStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Category, TargetNode, Userx } from '@/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { type Ref } from 'vue'
 import { querycachename } from './Const'
 
-const categoryStore = useCategoryStore()
 const userStore = useUserStore()
-const noderuleStore = useNodeRulesStore()
 
 // 搜索学院（名称）
 const getCollegeService = () => {
