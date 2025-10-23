@@ -97,7 +97,7 @@ import type { FormInstance } from 'element-plus'
 import { ref } from 'vue'
 
 const message = useMessage()
-const categoryList = await CollegeAdmin.getCategoryService() // 初始化
+const { data: categoryList } = CollegeAdmin.getCategoryService() // 初始化
 const dialogFormVisible = ref(false)
 const dialogStatus = ref('add') // add or edit
 const formRef = ref<FormInstance>()
@@ -106,6 +106,9 @@ const addForm = ref({
   name: '',
   weight: ''
 })
+
+const addCategoryMutation = CollegeAdmin.addCategoryService() // 添加类别
+const deleteCategoryMutation = CollegeAdmin.deleteCategoryService() // 删除类别
 
 // 打开类别dialog
 const openDialog = (status: string, data?: Category) => {
@@ -131,15 +134,15 @@ const handleConfirm = async () => {
     // getList()
     return
   } else {
-    await CollegeAdmin.addCategoryService(addForm.value)
+    await addCategoryMutation.mutateAsync(addForm.value)
     dialogFormVisible.value = false
     message.success('添加成功！')
   }
 }
 
-// 删除学院
+// 删除类别
 const handleDelete = async (id: string) => {
-  await CollegeAdmin.deleteCategoryService(id)
+  await deleteCategoryMutation.mutateAsync(id)
   message.success('删除成功!')
 }
 

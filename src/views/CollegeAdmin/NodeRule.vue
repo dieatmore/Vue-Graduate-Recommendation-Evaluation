@@ -47,10 +47,11 @@
       style="border-width: 1px">
       <el-tree
         class="w-full"
-        :data="nodeRulesS[route.params.categoryId as string]"
+        :data="nodeRules"
         node-key="id"
         draggable
         @node-drag-end="handleDragEnd"
+        :allow-drop="allowDrop"
         default-expand-all
         :expand-on-click-node="false">
         <template #default="{ data }">
@@ -115,13 +116,17 @@ import { Plus } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 import { ElMessageBox } from 'element-plus'
 import type Node from 'element-plus/es/components/tree/src/model/node'
-import { ref } from 'vue'
+import { ref, toRef } from 'vue'
 import { useRoute } from 'vue-router'
 
 const message = useMessage()
 const route = useRoute()
-const nodeRulesS = await CollegeAdmin.getAllNodeRulesService(route.params.categoryId as string)
-console.log(nodeRulesS)
+const catIdRG = toRef(() => route.params.categoryId as string)
+const { data: nodeRules } = CollegeAdmin.getAllNodeRulesService(catIdRG)
+
+const updateNodeRuleMutation = CollegeAdmin.updateNodeRuleService(catIdRG) // 新增/修改节点规则
+const deleteNodeRuleMutation = CollegeAdmin.deleteNodeRuleService(catIdRG) // 删除节点
+const dragNodeRuleMutation = CollegeAdmin.dragNodeRuleService(catIdRG) // 拖拽节点
 
 const dialogFormVisible = ref(false)
 const dialogStatus = ref('add') // add or edit
@@ -170,14 +175,14 @@ const openComment = (comment: string) => {
 
 // 删除该节点以及所有子节点
 const handleDelete = async (id: string) => {
-  await CollegeAdmin.deleteNodeRuleService(route.params.categoryId as string, id)
+  await deleteNodeRuleMutation.mutateAsync(id)
   message.success('删除成功!')
 }
 
 // 操作节点
 const handleConfirm = async () => {
   await formRef.value?.validate()
-  await CollegeAdmin.updateNodeRuleService(route.params.categoryId as string, addForm.value)
+  await updateNodeRuleMutation.mutateAsync(addForm.value)
   dialogFormVisible.value = false
   message.success('更新成功！')
 }
@@ -191,12 +196,33 @@ const handleClose = () => {
 // 拖拽节点
 const handleDragEnd = async (draggingNode: Node, dropNode: Node) => {
   if (draggingNode.data == dropNode.data) return
-  await CollegeAdmin.dragNodeRuleService(
-    route.params.categoryId as string,
-    draggingNode.data.id,
-    dropNode.data.id
-  )
+  await dragNodeRuleMutation.mutateAsync({
+    nodeId: draggingNode.data.id,
+    parentId: dropNode.data.id
+  })
   message.success('指标移动成功!')
+}
+
+// 判断拖拽节点是否是目标节点的自身或后代
+const isNodeSelfOrDescendant = (draggingNode: Node, dropNode: Node): boolean => {
+  if (draggingNode.data.id === dropNode.data.id) {
+    return true
+  }
+  let currentNode = dropNode
+  while (currentNode.parent) {
+    currentNode = currentNode.parent
+    if (currentNode.data.id === draggingNode.data.id) {
+      return true
+    }
+  }
+  return false
+}
+
+// 判断允许
+const allowDrop = (draggingNode: Node, dropNode: Node, dropType: 'before' | 'after' | 'inner') => {
+  const isInnerDrop = dropType === 'inner'
+  const isLegalTarget = !isNodeSelfOrDescendant(draggingNode, dropNode)
+  return isInnerDrop && isLegalTarget
 }
 </script>
 <style scoped>

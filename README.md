@@ -9,12 +9,31 @@
 - Element-plus
 - Tailwind CSS
 - axios
+- TanStack Query
 
 <hr/>
 
 ### ✅ update
 
 <br/>
+
+<br/>
+2025-10-23
+<br/>
+<br/>
+
+将除UserStore的所有自定义store缓存重构为TanStack Query扩展库
+
+- 重构服务以使用 TanStack Query 进行数据管理
+- 优化查询和变更操作（ 规则节点拖拽逻辑等 ）
+- 更新相关组件以支持新逻辑
+
+<br/>
+2025-10-20
+<br/>
+<br/>
+
+引入TanStack Query扩展库，测试学习useQuery以及useMutation
 
 <br/>
 2025-10-15

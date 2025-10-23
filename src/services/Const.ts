@@ -1,14 +1,12 @@
 export const querycachename = {
   college: {
-    colleges: 'colleges',
+    collegebyname: 'collegebyname',
+    collegename: 'collegename',
     categories: 'categories',
-    majors: 'majors',
-    majorstudentstatuses: 'majorstudentstatuses',
-    studentweightedscores: 'studentweightedscores',
-    studentitems: 'studentitems',
-    categoryitems: 'categoryitems',
-    categoryadmins: 'categoryadmins',
     categoriesmajors: 'categoriesmajors',
-    categoryadminscategories: 'categoryadminscategories'
+    categoryadminscategories: 'categoryadminscategories',
+    category: {
+      noderules: 'noderules'
+    }
   }
 }

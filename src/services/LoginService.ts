@@ -4,8 +4,8 @@ import router from '@/router'
 import { useCategoryStore } from '@/stores/CategoryStore'
 import { useNodeRulesStore } from '@/stores/NodeRuleStore'
 import { useUserStore } from '@/stores/UserStore'
-// import { useUserStore } from '@/stores/UserStore'
 import { Role, type ResultVO, type Userx } from '@/types'
+import queryClient from '@/vuequery'
 import { useQuery } from '@tanstack/vue-query'
 import { querycachename } from './Const'
 
@@ -64,5 +64,6 @@ export const LogoutService = () => {
   userStore.clear()
   categoryStore.clear()
   noderuleStore.clear()
+  queryClient.removeQueries()
   router.replace('/')
 }

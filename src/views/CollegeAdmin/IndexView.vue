@@ -126,7 +126,7 @@ import { useRoute } from 'vue-router'
 
 const isCollapse = ref(false)
 const userStore = useUserStore()
-const categoryList = await CollegeAdmin.getCategoryService()
+const { data: categoryList } = CollegeAdmin.getCategoryService()
 const user = userStore.UserS
 
 const route = useRoute()

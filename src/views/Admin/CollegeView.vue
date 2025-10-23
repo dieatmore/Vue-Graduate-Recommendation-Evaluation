@@ -237,15 +237,22 @@ const resetSearch = async () => {
 }
 
 const addMutation = Admin.addCollegeService() // 添加学院
+const editMutation = Admin.editCollegeService() // 修改学院
+const deleteMutation = Admin.deleteCollegeService() // 修改学院
+const addCollegeAdminMutation = Admin.addCollegeAdminService() // 添加学院管理员
+const editCollegeAdminMutation = Admin.editCollegeAdminService() // 修改学院管理员
+const deleteCollegeAdminMutation = Admin.deleteCollegeAdminService() // 删除学院管理员
 
 // 操作学院
 const handleConfirm = async () => {
   await formColRef.value?.validate()
   if (dialogStatus.value === 'edit') {
-    await Admin.editCollegeService(thisCollegeAndAdmin.value?.id as string, addForm.value)
+    await editMutation.mutateAsync({
+      id: thisCollegeAndAdmin.value?.id as string,
+      data: addForm.value
+    })
     dialogFormVisible.value = false
     message.success('修改成功！')
-    // getList()
   } else {
     await addMutation.mutateAsync(addForm.value)
     dialogFormVisible.value = false
@@ -257,31 +264,33 @@ const handleConfirm = async () => {
 const handleAdminConfirm = async () => {
   await formRef.value?.validate()
   if (dialogAdminStatus.value === 'edit') {
-    await Admin.editCollegeAdminService(thisAdmin.value?.id as string, addAdminForm.value)
+    await editCollegeAdminMutation.mutateAsync({
+      id: thisAdmin.value?.id as string,
+      data: addAdminForm.value
+    })
     dialogAdminFormVisible.value = false
     message.success('修改成功！')
-    // getList()
   } else {
-    await Admin.addCollegeAdminService(thisId.value as string, addAdminForm.value)
+    await addCollegeAdminMutation.mutateAsync({
+      id: thisId.value as string,
+      data: addAdminForm.value
+    })
     dialogAdminFormVisible.value = false
     message.success('添加成功！')
-    // getList()
   }
 }
 
 // 删除管理员
 const handleDeleteAdmin = async () => {
-  await Admin.deleteCollegeAdminService(thisAdmin.value?.id as string)
+  await deleteCollegeAdminMutation.mutateAsync(thisAdmin.value?.id as string)
   dialogAdminFormVisible.value = false
   message.success('删除成功！')
-  // getList()
 }
 
 // 删除学院
 const handleDelete = async (id: string) => {
-  await Admin.deleteCollegeService(id)
+  await deleteMutation.mutateAsync(id)
   message.success('删除成功!')
-  // getList()
 }
 
 // 关闭dialog

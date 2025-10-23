@@ -17,8 +17,10 @@ const queryClient = new QueryClient({
     },
     mutations: {
       onError: error => {
-        // 变更操作错误处理
-        message.error(error as unknown as string)
+        // 变更操作错误处理: await mutateAsync会让全局异常以及mutation两个同时捕获，弹出两个message
+        // message.error(error as unknown as string)
+        console.log(error)
+        return
       }
     }
   }

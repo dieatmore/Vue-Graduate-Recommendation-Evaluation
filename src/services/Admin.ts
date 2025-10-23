@@ -18,7 +18,7 @@ const CollegesAndAdminsService = () => {
 // 搜索学院（名称）
 const SearchCollegeService = (collegeName: Ref<string>) => {
   return useQuery({
-    queryKey: [querycachename.college.colleges, collegeName],
+    queryKey: [querycachename.college.collegebyname, collegeName],
     queryFn: () => useGet(`admin/collegesadmins/${collegeName.value}`),
     enabled: computed(() => !!collegeName.value)
   })
@@ -35,28 +35,55 @@ const addCollegeService = () => {
 }
 
 // 修改学院
-const editCollegeService = async (id: string, data: College) => {
-  return await usePatch(`admin/colleges/${id}`, data)
+const editCollegeService = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: College }) =>
+      usePatch(`admin/colleges/${id}`, data),
+    onSuccess: () =>
+      qc.refetchQueries({ queryKey: [querycachename.college.categoryadminscategories] })
+  })
 }
 
 // 删除学院
-const deleteCollegeService = async (id: string) => {
-  return await useDelete(`admin/colleges/${id}`)
+const deleteCollegeService = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => useDelete(`admin/colleges/${id}`),
+    onSuccess: () =>
+      qc.refetchQueries({ queryKey: [querycachename.college.categoryadminscategories] })
+  })
 }
 
 // 添加学院管理员
-const addCollegeAdminService = async (id: string, data: Userx) => {
-  return await usePost(`admin/colleges/${id}`, data)
+const addCollegeAdminService = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Userx }) =>
+      usePost(`admin/colleges/${id}`, data),
+    onSuccess: () =>
+      qc.refetchQueries({ queryKey: [querycachename.college.categoryadminscategories] })
+  })
 }
 
 // 修改学院管理员
-const editCollegeAdminService = async (id: string, data: Userx) => {
-  return await usePatch(`admin/users/${id}`, data)
+const editCollegeAdminService = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Userx }) => usePatch(`admin/users/${id}`, data),
+    onSuccess: () =>
+      qc.refetchQueries({ queryKey: [querycachename.college.categoryadminscategories] })
+  })
 }
 
 // 删除学院管理员
-const deleteCollegeAdminService = async (id: string) => {
-  return await useDelete(`admin/users/${id}`)
+const deleteCollegeAdminService = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => useDelete(`admin/users/${id}`),
+    onSuccess: () =>
+      qc.refetchQueries({ queryKey: [querycachename.college.categoryadminscategories] })
+  })
 }
 
 // 修改密码

@@ -3,14 +3,20 @@ import { useCategoryStore } from '@/stores/CategoryStore'
 import { useNodeRulesStore } from '@/stores/NodeRuleStore'
 import { useUserStore } from '@/stores/UserStore'
 import type { Category, TargetNode, Userx } from '@/types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { type Ref } from 'vue'
+import { querycachename } from './Const'
 
 const categoryStore = useCategoryStore()
 const userStore = useUserStore()
 const noderuleStore = useNodeRulesStore()
 
 // 搜索学院（名称）
-const getCollegeService = async () => {
-  return await useGet(`collegeadmin/college`)
+const getCollegeService = () => {
+  return useQuery({
+    queryKey: [querycachename.college.collegename],
+    queryFn: () => useGet(`collegeadmin/college`)
+  })
 }
 
 // 修改密码
@@ -26,61 +32,76 @@ const updateUserInfoService = async (user: Userx) => {
 }
 
 // 获取类别列表
-const getCategoryService = async () => {
-  if (categoryStore.categorysS.value?.length) return categoryStore.categorysS
-  const data = await useGet(`collegeadmin/categorys`)
-  categoryStore.categorysS.value = data
-  return categoryStore.categorysS
+const getCategoryService = () => {
+  return useQuery({
+    queryKey: [querycachename.college.categories],
+    queryFn: () => useGet(`collegeadmin/categorys`)
+  })
 }
 
 // 新增类别
-const addCategoryService = async (category: Category) => {
-  await usePost(`collegeadmin/categorys`, category)
-  const data = await useGet(`collegeadmin/categorys`)
-  categoryStore.categorysS.value = data
-  return categoryStore.categorysS
+const addCategoryService = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (category: Category) => usePost(`collegeadmin/categorys`, category),
+    onSuccess: () => qc.refetchQueries({ queryKey: [querycachename.college.categories] })
+  })
 }
 
 // 删除类别
-const deleteCategoryService = async (id: string) => {
-  await useDelete(`collegeadmin/categorys/${id}`)
-  const data = await useGet(`collegeadmin/categorys`)
-  categoryStore.categorysS.value = data
-  return categoryStore.categorysS
+const deleteCategoryService = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => useDelete(`collegeadmin/categorys/${id}`),
+    onSuccess: () => qc.refetchQueries({ queryKey: [querycachename.college.categories] })
+  })
 }
 
 // 获取所有规则节点
-const getAllNodeRulesService = async (catId: string) => {
-  if (noderuleStore.nodeRulesS.value?.[catId]?.length) {
-    return noderuleStore.nodeRulesS
-  }
-  const data = await useGet(`collegeadmin/categorys/${catId}/targetnodes`)
-  noderuleStore.setNodeRules(catId, data)
-  return noderuleStore.nodeRulesS
+const getAllNodeRulesService = (catId: Ref<string>) => {
+  return useQuery({
+    queryKey: [querycachename.college.category.noderules, catId],
+    queryFn: () => useGet(`collegeadmin/categorys/${catId.value}/targetnodes`)
+  })
 }
 
 // 新增/修改规则节点
-const updateNodeRuleService = async (catId: string, nodeRule: TargetNode) => {
-  await usePost(`collegeadmin/categorys/${catId}/targetnodes`, nodeRule)
-  const data = await useGet(`collegeadmin/categorys/${catId}/targetnodes`)
-  noderuleStore.setNodeRules(catId, data)
-  return noderuleStore.nodeRulesS.value[catId]
+const updateNodeRuleService = (catId: Ref<string>) => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (nodeRule: TargetNode) =>
+      usePost(`collegeadmin/categorys/${catId.value}/targetnodes`, nodeRule),
+    onSuccess: () =>
+      qc.refetchQueries({
+        queryKey: [querycachename.college.category.noderules, catId]
+      })
+  })
 }
 
 // 删除规则节点
-const deleteNodeRuleService = async (catId: string, nodeId: string) => {
-  await useDelete(`collegeadmin/categorys/${catId}/targetnodes/${nodeId}`)
-  const data = await useGet(`collegeadmin/categorys/${catId}/targetnodes`)
-  noderuleStore.setNodeRules(catId, data)
-  return noderuleStore.nodeRulesS.value[catId]
+const deleteNodeRuleService = (catId: Ref<string>) => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (nodeId: string) =>
+      useDelete(`collegeadmin/categorys/${catId.value}/targetnodes/${nodeId}`),
+    onSuccess: () =>
+      qc.refetchQueries({
+        queryKey: [querycachename.college.category.noderules, catId]
+      })
+  })
 }
 
 // 拖拽更新节点
-const dragNodeRuleService = async (catId: string, nodeId: string, parentId: string) => {
-  await usePatch(`collegeadmin/categorys/${catId}/targetnodes/${nodeId}`, parentId)
-  const data = await useGet(`collegeadmin/categorys/${catId}/targetnodes`)
-  noderuleStore.setNodeRules(catId, data)
-  return noderuleStore.nodeRulesS.value[catId]
+const dragNodeRuleService = (catId: Ref<string>) => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ nodeId, parentId }: { nodeId: string; parentId: string }) =>
+      usePatch(`collegeadmin/categorys/${catId.value}/targetnodes/${nodeId}`, parentId),
+    onSuccess: () =>
+      qc.refetchQueries({
+        queryKey: [querycachename.college.category.noderules, catId]
+      })
+  })
 }
 
 export const CollegeAdmin = {

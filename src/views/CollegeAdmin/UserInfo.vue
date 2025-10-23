@@ -36,7 +36,7 @@
               所属学院
             </div>
           </template>
-          <el-tag size="large">{{ collegeName || '暂无数据' }}</el-tag>
+          <el-tag size="large">{{ college.name || '暂无数据' }}</el-tag>
         </el-descriptions-item>
         <el-descriptions-item>
           <template #label>
@@ -127,7 +127,6 @@ const userStore = useUserStore()
 const user = userStore.UserS
 
 const message = useMessage()
-const collegeName = ref('')
 const dialogFormVisible1 = ref(false)
 const dialogFormVisible2 = ref(false)
 const submitting = ref(false)
@@ -146,11 +145,7 @@ const newUser = ref({
 })
 
 // 获取学院名称
-const getCollegeName = async () => {
-  const data = await CollegeAdmin.getCollegeService()
-  collegeName.value = data.name
-}
-getCollegeName()
+const { data: college } = CollegeAdmin.getCollegeService()
 
 // 打开弹窗1
 const openDialog1 = () => {
