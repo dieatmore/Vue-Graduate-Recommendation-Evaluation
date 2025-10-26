@@ -7,7 +7,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/login/LoginView.vue')
   },
   {
-    path: '/main/Admin',
+    path: '/header',
+    component: () => import('@/views/main/header/IndexView.vue')
+  },
+  {
+    path: '/Admin',
     component: () => import('@/views/main/Admin/IndexView.vue'),
     redirect: '/college',
     meta: { role: Role.ADMIN },
@@ -17,13 +21,13 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/main/Admin/CollegeView.vue')
       },
       {
-        path: '/main/Admininfo',
+        path: '/Admininfo',
         component: () => import('@/views/main/Admin/AdminInfo.vue')
       }
     ]
   },
   {
-    path: '/main/CollegeAdmin',
+    path: '/CollegeAdmin',
     component: () => import('@/views/main/CollegeAdmin/IndexView.vue'),
     redirect: '/category',
     meta: { role: Role.COLLAGE_ADMIN },
@@ -33,7 +37,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/main/CollegeAdmin/CategoryView.vue')
       },
       {
-        path: '/categorys/:categoryId/majors',
+        path: '/categorys/:categoryId/managemajors',
         component: () => import('@/views/main/CollegeAdmin/MajorView.vue')
       },
       {
@@ -43,6 +47,10 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/categorys/:categoryId/noderules',
         component: () => import('@/views/main/CollegeAdmin/NodeRule.vue')
+      },
+      {
+        path: '/categorys/:categoryId/markmajors/:majorId/markstudents',
+        component: () => import('@/views/main/CollegeAdmin/MarkStudent.vue')
       },
       {
         path: '/resetpassword',

@@ -4,28 +4,28 @@
     <div
       class="h-[10%] mt-4 bg-white p-4 rounded-xl flex justify-evenly border-gray shadow-sm hover-shadow"
       style="border-width: 1px">
-      <el-form :inline="true" class="demo-form-inline mt-2" :model="formInline">
+      <el-form :inline="true" class="demo-form-inline mt-2" :model="formInlineR">
         <el-form-item label="学院名称">
           <el-input
-            v-model="formInline.collegeName"
+            v-model="formInlineR.collegeName"
             placeholder="请输入学院名称"
             clearable
             style="width: 240px" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">
+          <el-button type="primary" @click="onSubmitF">
             <Search style="width: 1em; height: 1em; margin-right: 4px" />
             搜索
           </el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="resetSearch">
+          <el-button type="primary" @click="resetSearchF">
             <RefreshRight style="width: 1em; height: 1em; margin-right: 4px" />
             重置
           </el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="success" class="flex ml-4" @click="openDialog('add')">
+          <el-button type="success" class="flex ml-4" @click="openDialogF('add')">
             <Plus style="width: 1em; height: 1em; margin-right: 4px" />
             新增学院
           </el-button>
@@ -35,51 +35,51 @@
 
     <!-- 学院dialog -->
     <el-dialog
-      v-model="dialogFormVisible"
-      :title="dialogStatus == 'add' ? '添加学院' : '修改学院'"
-      @close="handleClose"
+      v-model="dialogFormVisibleR"
+      :title="dialogStatusR == 'add' ? '添加学院' : '修改学院'"
+      @close="handleCloseF"
       width="400">
-      <el-form :model="addForm" :rules="rulesCol" ref="formColRef">
+      <el-form :model="addFormR" :rules="rulesCol" ref="formColIns">
         <el-form-item label="学院名称" prop="name">
-          <el-input autocomplete="off" v-model="addForm.name" />
+          <el-input autocomplete="off" v-model="addFormR.name" />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleConfirm">确认</el-button>
+          <el-button @click="dialogFormVisibleR = false">取消</el-button>
+          <el-button type="primary" @click="handleConfirmF">确认</el-button>
         </span>
       </template>
     </el-dialog>
 
     <!-- 学院管理员dialog -->
     <el-dialog
-      v-model="dialogAdminFormVisible"
-      :title="dialogAdminStatus == 'add' ? '添加管理员' : '修改管理员'"
-      @close="handleClose"
+      v-model="dialogAdminFormVisibleR"
+      :title="dialogAdminStatusR == 'add' ? '添加管理员' : '修改管理员'"
+      @close="handleCloseF"
       width="400">
-      <el-form :model="addAdminForm" :rules="rules" ref="formRef">
+      <el-form :model="addAdminFormR" :rules="rules" ref="formIns">
         <el-form-item label="管理员账号" prop="account">
-          <el-input autocomplete="off" v-model="addAdminForm.account" />
+          <el-input autocomplete="off" v-model="addAdminFormR.account" />
         </el-form-item>
         <el-form-item label="管理员名称" prop="name">
-          <el-input autocomplete="off" v-model="addAdminForm.name" />
+          <el-input autocomplete="off" v-model="addAdminFormR.name" />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
           <el-popconfirm
             title="确定删除该管理员吗?"
-            v-if="dialogAdminStatus == 'edit'"
+            v-if="dialogAdminStatusR == 'edit'"
             confirm-button-text="确认"
             cancel-button-text="取消"
-            @confirm="handleDeleteAdmin">
+            @confirm="handleDeleteAdminF">
             <template #reference>
               <el-button type="danger">删除该管理员</el-button>
             </template>
           </el-popconfirm>
-          <el-button @click="dialogAdminFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleAdminConfirm">确认</el-button>
+          <el-button @click="dialogAdminFormVisibleR = false">取消</el-button>
+          <el-button type="primary" @click="handleAdminConfirmF">确认</el-button>
         </span>
       </template>
     </el-dialog>
@@ -87,7 +87,7 @@
     <!-- 学院列表 -->
     <el-table
       class="w-full mt-8 bg-white border-gray shadow-sm rounded-xl hover-shadow"
-      :data="dataList"
+      :data="dataListR"
       stripe
       style="width: 100%; border-width: 1px"
       height="690"
@@ -100,7 +100,7 @@
             class="flex ml-2"
             size="medium"
             plain
-            @click="openAdminDialog('add', scope.row.id)">
+            @click="openAdminDialogF('add', scope.row.id)">
             <Plus style="width: 0.8em; height: 0.8em" class="mr-1" />
             <span style="font-size: smaller">学院管理员</span>
           </el-button>
@@ -122,7 +122,7 @@
                   type="info"
                   :icon="Edit"
                   size="small"
-                  @click="openAdminDialog('edit', scope.row.id, scope.row.users[index])">
+                  @click="openAdminDialogF('edit', scope.row.id, scope.row.users[index])">
                   {{ admin.name }}
                 </el-button>
               </el-tooltip>
@@ -134,7 +134,7 @@
 
       <el-table-column label="操作">
         <template #default="scope">
-          <el-button type="primary" plain @click="openDialog('edit', scope.row)">
+          <el-button type="primary" plain @click="openDialogF('edit', scope.row)">
             <EditPen style="width: 1em; height: 1em; margin-right: 4px" />
             修改学院
           </el-button>
@@ -142,7 +142,7 @@
             title="确定删除该学院吗?"
             confirm-button-text="确认"
             cancel-button-text="取消"
-            @confirm="handleDelete(scope.row.id)">
+            @confirm="handleDeleteF(scope.row.id)">
             <template #reference>
               <el-button type="danger" plain>
                 <DeleteFilled style="width: 1em; height: 1em; margin-right: 4px" />
@@ -164,73 +164,71 @@ import type { FormInstance } from 'element-plus'
 import { ref, watch } from 'vue'
 
 const message = useMessage()
-const formRef = ref<FormInstance>()
-const formColRef = ref<FormInstance>()
-const dialogFormVisible = ref(false)
-const dialogAdminFormVisible = ref(false)
-const dialogStatus = ref('add') // add or edit
-const dialogAdminStatus = ref('add') // add or edit
-const thisCollegeAndAdmin = ref<CollegeAndAdmin>() // 当前操作的学院和管理员
-const thisId = ref('') // 当前操作的学院id
-const thisAdmin = ref<Userx>() // 当前操作的管理员
-const collegeName = ref('')
+const formIns = ref<FormInstance>()
+const formColIns = ref<FormInstance>()
+const dialogFormVisibleR = ref(false)
+const dialogAdminFormVisibleR = ref(false)
+const dialogStatusR = ref('add') // add or edit
+const dialogAdminStatusR = ref('add') // add or edit
+const thisCollegeAndAdminR = ref<CollegeAndAdmin>() // 当前操作的学院和管理员
+const thisIdR = ref('') // 当前操作的学院id
+const thisAdminR = ref<Userx>() // 当前操作的管理员
+const collegeNameR = ref('')
 
-const formInline = ref({
+const formInlineR = ref({
   collegeName: ''
 })
 
-const addForm = ref({
+const addFormR = ref({
   name: ''
 })
 
-const addAdminForm = ref({
+const addAdminFormR = ref({
   account: '',
   name: ''
 })
 
-const dataList = ref([])
+const dataListR = ref([])
 
 // 获取学院和学院管理员列表
-const { data: allList, refetch: refetchAllList } = Admin.CollegesAndAdminsService()
+const { data: allListR, refetch: refetchAllList } = Admin.CollegesAndAdminsService()
 watch(
-  () => allList.value,
+  () => allListR.value,
   newVal => {
     if (newVal) {
-      dataList.value = newVal
+      dataListR.value = newVal
     }
   },
   { immediate: true }
 )
 
 // 根据名字搜索学院
-const { data: collegeByName } = Admin.SearchCollegeService(collegeName)
+const { data: collegeByNameR } = Admin.SearchCollegeService(collegeNameR)
 watch(
-  () => collegeByName.value,
+  () => collegeByNameR.value,
   newVal => {
     if (newVal.length === 0) {
-      message.info('未找到匹配的学院')
     } else {
-      dataList.value = newVal
-      console.log('搜索到的：', dataList.value)
+      dataListR.value = newVal
     }
   }
 )
 
 // 提交学院名字
-const onSubmit = () => {
-  if (!formInline.value.collegeName) {
+const onSubmitF = () => {
+  if (!formInlineR.value.collegeName) {
     message.warning('请输入学院名称') // 空值校验
     return
   }
-  collegeName.value = formInline.value.collegeName
+  collegeNameR.value = formInlineR.value.collegeName
 }
 
 // 重置所有学院
-const resetSearch = async () => {
-  formInline.value.collegeName = ''
-  collegeName.value = ''
-  if (allList.value) {
-    dataList.value = allList.value
+const resetSearchF = async () => {
+  formInlineR.value.collegeName = ''
+  collegeNameR.value = ''
+  if (allListR.value) {
+    dataListR.value = allListR.value
   } else {
     refetchAllList()
   }
@@ -244,84 +242,87 @@ const editCollegeAdminMutation = Admin.editCollegeAdminService() // 修改学院
 const deleteCollegeAdminMutation = Admin.deleteCollegeAdminService() // 删除学院管理员
 
 // 操作学院
-const handleConfirm = async () => {
-  await formColRef.value?.validate()
-  if (dialogStatus.value === 'edit') {
+const handleConfirmF = async () => {
+  await formColIns.value?.validate()
+  if (dialogStatusR.value === 'edit') {
     await editMutation.mutateAsync({
-      id: thisCollegeAndAdmin.value?.id as string,
-      data: addForm.value
+      id: thisCollegeAndAdminR.value?.id as string,
+      data: addFormR.value
     })
-    dialogFormVisible.value = false
+    dialogFormVisibleR.value = false
     message.success('修改成功！')
   } else {
-    await addMutation.mutateAsync(addForm.value)
-    dialogFormVisible.value = false
+    await addMutation.mutateAsync(addFormR.value)
+    dialogFormVisibleR.value = false
     message.success('添加成功！')
   }
 }
 
 // 操作管理员
-const handleAdminConfirm = async () => {
-  await formRef.value?.validate()
-  if (dialogAdminStatus.value === 'edit') {
+const handleAdminConfirmF = async () => {
+  await formIns.value?.validate()
+  if (dialogAdminStatusR.value === 'edit') {
     await editCollegeAdminMutation.mutateAsync({
-      id: thisAdmin.value?.id as string,
-      data: addAdminForm.value
+      id: thisAdminR.value?.id as string,
+      data: addAdminFormR.value
     })
-    dialogAdminFormVisible.value = false
+    dialogAdminFormVisibleR.value = false
     message.success('修改成功！')
   } else {
     await addCollegeAdminMutation.mutateAsync({
-      id: thisId.value as string,
-      data: addAdminForm.value
+      id: thisIdR.value as string,
+      data: addAdminFormR.value
     })
-    dialogAdminFormVisible.value = false
+    dialogAdminFormVisibleR.value = false
     message.success('添加成功！')
   }
 }
 
 // 删除管理员
-const handleDeleteAdmin = async () => {
-  await deleteCollegeAdminMutation.mutateAsync(thisAdmin.value?.id as string)
-  dialogAdminFormVisible.value = false
+const handleDeleteAdminF = async () => {
+  await deleteCollegeAdminMutation.mutateAsync(thisAdminR.value?.id as string)
+  dialogAdminFormVisibleR.value = false
   message.success('删除成功！')
 }
 
 // 删除学院
-const handleDelete = async (id: string) => {
+const handleDeleteF = async (id: string) => {
   await deleteMutation.mutateAsync(id)
   message.success('删除成功!')
 }
 
 // 关闭dialog
-const handleClose = () => {
-  dialogFormVisible.value = false
-  dialogAdminFormVisible.value = false
-  formRef.value?.resetFields()
-  formColRef.value?.resetFields()
+const handleCloseF = () => {
+  formIns.value?.resetFields()
+  formColIns.value?.resetFields()
+  dialogFormVisibleR.value = false
+  dialogAdminFormVisibleR.value = false
+  addFormR.value.name = ''
+  addAdminFormR.value.account = ''
+  addAdminFormR.value.name = ''
 }
 
 // 打开学院dialog
-const openDialog = (status: string, data?: CollegeAndAdmin) => {
-  dialogFormVisible.value = true
-  dialogStatus.value = status
-  if (status == 'add') addForm.value.name = ''
-  else addForm.value.name = data?.name as string
-  if (data) thisCollegeAndAdmin.value = data
+const openDialogF = (status: string, data?: CollegeAndAdmin) => {
+  dialogFormVisibleR.value = true
+  dialogStatusR.value = status
+  if (status == 'add') addFormR.value.name = ''
+  else addFormR.value.name = data?.name as string
+  if (data) thisCollegeAndAdminR.value = data
 }
 
 // 打开学院管理员dialog
-const openAdminDialog = (status: string, collegeId?: string, data?: Userx) => {
-  dialogAdminFormVisible.value = true
-  dialogAdminStatus.value = status
+const openAdminDialogF = (status: string, collegeId?: string, data?: Userx) => {
+  dialogAdminFormVisibleR.value = true
+  dialogAdminStatusR.value = status
   if (status == 'add') {
-    addAdminForm.value.account = ''
-    addAdminForm.value.name = ''
-    thisId.value = collegeId as string
+    addAdminFormR.value.account = ''
+    addAdminFormR.value.name = ''
+    thisIdR.value = collegeId as string
   } else {
-    addAdminForm.value.account = data?.account as string
-    addAdminForm.value.name = data?.name as string
-    if (data) thisAdmin.value = data
+    addAdminFormR.value.account = data?.account as string
+    addAdminFormR.value.name = data?.name as string
+    if (data) thisAdminR.value = data
   }
 }
 

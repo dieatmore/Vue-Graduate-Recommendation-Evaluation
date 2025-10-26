@@ -43,9 +43,9 @@
 
             <!-- 类别子菜单 - 动态生成 -->
             <el-menu-item
-              v-for="category in categoryList"
+              v-for="category in categoryListR"
               :key="category.id"
-              :index="`/categorys/${category.id}/majors`">
+              :index="`/categorys/${category.id}/managemajors`">
               {{ category.name }}
             </el-menu-item>
           </el-sub-menu>
@@ -54,6 +54,33 @@
             <el-icon><Opportunity /></el-icon>
             <span style="font-weight: bolder">导师管理</span>
           </el-menu-item>
+
+          <!-- 学生审批 -->
+          <el-sub-menu index="/mark">
+            <template #title>
+              <el-icon><List /></el-icon>
+              <span style="font-weight: bolder">学生审批</span>
+            </template>
+
+            <!-- 类别子菜单（第一层嵌套） -->
+            <el-sub-menu
+              v-for="category in catMajorsR"
+              :key="category.id"
+              :index="`/categorys/${category.id}/markmajors`">
+              <!-- 类别名称 -->
+              <template #title>
+                {{ category.categoryName }}
+              </template>
+
+              <!-- 专业子菜单（第二层嵌套） -->
+              <el-menu-item
+                v-for="major in category.majors"
+                :key="major.id"
+                :index="`/categorys/${category.id}/markmajors/${major.id}/markstudents`">
+                {{ major.name }}
+              </el-menu-item>
+            </el-sub-menu>
+          </el-sub-menu>
 
           <!-- 推免规则管理 -->
           <el-sub-menu index="/noderule">
@@ -64,7 +91,7 @@
 
             <!-- 类别子菜单 - 动态生成 -->
             <el-menu-item
-              v-for="category in categoryList"
+              v-for="category in categoryListR"
               :key="category.id"
               :index="`/categorys/${category.id}/noderules`">
               {{ category.name }}
@@ -126,8 +153,10 @@ import { useRoute } from 'vue-router'
 
 const isCollapse = ref(false)
 const userStore = useUserStore()
-const { data: categoryList } = CollegeAdmin.getCategoryService()
 const user = userStore.UserS
+
+const { data: categoryListR } = CollegeAdmin.getCategoryService()
+const { data: catMajorsR } = CollegeAdmin.getCatMajorsService()
 
 const route = useRoute()
 

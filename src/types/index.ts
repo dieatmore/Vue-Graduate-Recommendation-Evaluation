@@ -78,7 +78,7 @@ export interface TargetNode {
   parentId: string | null
   name: string
   categoryId: string
-  maxMark: number
+  maxMark: number | undefined
   maxNumber?: number | null
   comment?: string | null
   createTime?: string

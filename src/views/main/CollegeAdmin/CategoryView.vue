@@ -21,7 +21,7 @@
           </el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="success" class="flex ml-4" @click="openDialog('add')">
+          <el-button type="success" class="flex ml-4" @click="openDialogF('add')">
             <Plus style="width: 1em; height: 1em; margin-right: 4px" />
             新增类别
           </el-button>
@@ -31,22 +31,22 @@
 
     <!-- 类别dialog -->
     <el-dialog
-      v-model="dialogFormVisible"
-      :title="dialogStatus == 'add' ? '添加类别' : '修改类别'"
-      @close="handleClose"
+      v-model="dialogFormVisibleR"
+      :title="dialogStatusR == 'add' ? '添加类别' : '修改类别'"
+      @close="handleCloseF"
       width="400">
-      <el-form :model="addForm" :rules="rules" ref="formRef">
+      <el-form :model="addFormR" :rules="rules" ref="formIns">
         <el-form-item label="类别名称" prop="name">
-          <el-input autocomplete="off" v-model="addForm.name" />
+          <el-input autocomplete="off" v-model="addFormR.name" />
         </el-form-item>
         <el-form-item label="成绩占比" prop="weight">
-          <el-input autocomplete="off" v-model="addForm.weight" />
+          <el-input autocomplete="off" v-model="addFormR.weight" />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleConfirm">确认</el-button>
+          <el-button @click="dialogFormVisibleR = false">取消</el-button>
+          <el-button type="primary" @click="handleConfirmF">确认</el-button>
         </span>
       </template>
     </el-dialog>
@@ -54,7 +54,7 @@
     <!-- 学院列表 -->
     <el-table
       class="w-full mt-8 bg-white border-gray shadow-sm rounded-xl hover-shadow"
-      :data="categoryList"
+      :data="categoryListR"
       stripe
       style="width: 100%; border-width: 1px"
       height="690"
@@ -65,9 +65,15 @@
         </template>
       </el-table-column>
 
+      <el-table-column prop="weight" label="成绩比重">
+        <template #default="scope">
+          <span class="font-medium">{{ scope.row.weight }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column label="操作">
         <template #default="scope">
-          <el-button type="primary" plain>
+          <el-button type="primary" plain @click="openDialogF('edit', scope.row)">
             <EditPen style="width: 1em; height: 1em; margin-right: 4px" />
             修改类别
           </el-button>
@@ -75,7 +81,7 @@
             title="确定删除该类别吗?"
             confirm-button-text="确认"
             cancel-button-text="取消"
-            @confirm="handleDelete(scope.row.id)">
+            @confirm="handleDeleteF(scope.row.id)">
             <template #reference>
               <el-button type="danger" plain>
                 <DeleteFilled style="width: 1em; height: 1em; margin-right: 4px" />
@@ -97,59 +103,60 @@ import type { FormInstance } from 'element-plus'
 import { ref } from 'vue'
 
 const message = useMessage()
-const { data: categoryList } = CollegeAdmin.getCategoryService() // 初始化
-const dialogFormVisible = ref(false)
-const dialogStatus = ref('add') // add or edit
-const formRef = ref<FormInstance>()
+const { data: categoryListR } = CollegeAdmin.getCategoryService() // 初始化
+const dialogFormVisibleR = ref(false)
+const dialogStatusR = ref('add') // add or edit
+const formIns = ref<FormInstance>()
+const editId = ref()
 
-const addForm = ref({
+const addFormR = ref({
   name: '',
   weight: ''
 })
 
 const addCategoryMutation = CollegeAdmin.addCategoryService() // 添加类别
 const deleteCategoryMutation = CollegeAdmin.deleteCategoryService() // 删除类别
+const updateCategoryMutation = CollegeAdmin.updateCategoryService() // 修改类别
 
 // 打开类别dialog
-const openDialog = (status: string, data?: Category) => {
-  dialogFormVisible.value = true
-  dialogStatus.value = status
+const openDialogF = (status: string, data?: Category) => {
+  dialogFormVisibleR.value = true
+  dialogStatusR.value = status
   if (status == 'add') {
-    addForm.value.name = ''
-    addForm.value.weight = ''
+    addFormR.value.name = ''
+    addFormR.value.weight = ''
   } else {
-    addForm.value.name = data?.name as string
-    // if (data) thisCollegeAndAdmin.value = data
-    return
+    editId.value = data?.id
+    addFormR.value.name = data?.name as string
+    addFormR.value.weight = data?.weight as string
   }
 }
 
 // 操作类别
-const handleConfirm = async () => {
-  await formRef.value?.validate()
-  if (dialogStatus.value === 'edit') {
-    // await Admin.editCollegeService(thisCollegeAndAdmin.value?.id as string, addForm.value)
-    // dialogFormVisible.value = false
-    // message.success('修改成功！')
-    // getList()
+const handleConfirmF = async () => {
+  await formIns.value?.validate()
+  if (dialogStatusR.value === 'edit') {
+    await updateCategoryMutation.mutateAsync({ categoryId: editId.value, cat: addFormR.value })
+    dialogFormVisibleR.value = false
+    message.success('修改成功！')
     return
   } else {
-    await addCategoryMutation.mutateAsync(addForm.value)
-    dialogFormVisible.value = false
+    await addCategoryMutation.mutateAsync(addFormR.value)
+    dialogFormVisibleR.value = false
     message.success('添加成功！')
   }
 }
 
 // 删除类别
-const handleDelete = async (id: string) => {
+const handleDeleteF = async (id: string) => {
   await deleteCategoryMutation.mutateAsync(id)
   message.success('删除成功!')
 }
 
 // 关闭dialog
-const handleClose = () => {
-  dialogFormVisible.value = false
-  formRef.value?.resetFields()
+const handleCloseF = () => {
+  dialogFormVisibleR.value = false
+  formIns.value?.resetFields()
 }
 
 // 学院表单验证规则

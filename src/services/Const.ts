@@ -3,7 +3,10 @@ export const querycachename = {
     collegebyname: 'collegebyname',
     collegename: 'collegename',
     categories: 'categories',
-    categoriesmajors: 'categoriesmajors',
+    collegesmajors: 'collegesmajors',
+    categorysmajors: 'categorysmajors',
+    majorsbycatid: 'majorsbycatid',
+    teacherscats: 'teacherscats',
     categoryadminscategories: 'categoryadminscategories',
     category: {
       noderules: 'noderules'

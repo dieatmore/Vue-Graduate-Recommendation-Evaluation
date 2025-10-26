@@ -16,11 +16,11 @@ const CollegesAndAdminsService = () => {
 }
 
 // 搜索学院（名称）
-const SearchCollegeService = (collegeName: Ref<string>) => {
+const SearchCollegeService = (collegeNameR: Ref<string>) => {
   return useQuery({
-    queryKey: [querycachename.college.collegebyname, collegeName],
-    queryFn: () => useGet(`admin/collegesadmins/${collegeName.value}`),
-    enabled: computed(() => !!collegeName.value)
+    queryKey: [querycachename.college.collegebyname, collegeNameR],
+    queryFn: () => useGet(`admin/collegesadmins/${collegeNameR.value}`),
+    enabled: computed(() => !!collegeNameR.value)
   })
 }
 

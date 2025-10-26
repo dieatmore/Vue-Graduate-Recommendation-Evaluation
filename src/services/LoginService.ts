@@ -44,7 +44,7 @@ export const loginService = async (user: Userx) => {
 // 注册:获取所有学院和专业
 export const CollegesAndMajorsService = () => {
   return useQuery({
-    queryKey: [querycachename.college.categoriesmajors],
+    queryKey: [querycachename.college.collegesmajors],
     queryFn: () => useGet('open/register/collegesmajors')
   })
 }

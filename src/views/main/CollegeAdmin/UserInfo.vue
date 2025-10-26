@@ -36,7 +36,7 @@
               所属学院
             </div>
           </template>
-          <el-tag size="large">{{ college.name || '暂无数据' }}</el-tag>
+          <el-tag size="large">{{ collegeR.name || '暂无数据' }}</el-tag>
         </el-descriptions-item>
         <el-descriptions-item>
           <template #label>
@@ -54,19 +54,19 @@
       <!-- 操作 -->
       <div class="relative px-4 pt-24">
         <div class="absolute right-8">
-          <el-button type="primary" @click="openDialog1">修改密码</el-button>
-          <el-button type="success" class="button-info" @click="openDialog2">
+          <el-button type="primary" @click="openDialogF1">修改密码</el-button>
+          <el-button type="success" class="button-info" @click="openDialogF2">
             更新个人信息
           </el-button>
         </div>
       </div>
 
       <!-- 修改密码dialog -->
-      <el-dialog v-model="dialogFormVisible1" title="修改密码" width="400" @close="handleClose">
-        <el-form :rules="rules" :model="form" ref="formRef">
+      <el-dialog v-model="dialogFormVisibleR1" title="修改密码" width="400" @close="handleCloseF">
+        <el-form :rules="rules" :model="formR" ref="formIns">
           <el-form-item label="密码" prop="password">
             <el-input
-              v-model="form.password"
+              v-model="formR.password"
               type="password"
               placeholder="请输入密码"
               :prefix-icon="Lock"
@@ -75,7 +75,7 @@
           <!-- 确认密码 -->
           <el-form-item label="确认密码" prop="confirmPassword">
             <el-input
-              v-model="form.confirmPassword"
+              v-model="formR.confirmPassword"
               type="password"
               placeholder="请再次输入密码"
               :prefix-icon="Lock"
@@ -84,29 +84,37 @@
         </el-form>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="dialogFormVisible1 = false">取消</el-button>
-            <el-button type="primary" @click="handleConfirm1" :loading="submitting">确认</el-button>
+            <el-button @click="dialogFormVisibleR1 = false">取消</el-button>
+            <el-button type="primary" @click="handleConfirmF1" :loading="submittingR">
+              确认
+            </el-button>
           </span>
         </template>
       </el-dialog>
 
       <!-- 更新信息dialog -->
-      <el-dialog v-model="dialogFormVisible2" title="更新详细信息" width="400" @close="handleClose">
-        <el-form :rules="rulesUser" :model="newUser" ref="formUserRef">
+      <el-dialog
+        v-model="dialogFormVisibleR2"
+        title="更新详细信息"
+        width="400"
+        @close="handleCloseF">
+        <el-form :rules="rulesUser" :model="newUserR" ref="formUserIns">
           <el-form-item label="账号" prop="account">
-            <el-input v-model="newUser.account" autocomplete="off" :rows="4" />
+            <el-input v-model="newUserR.account" autocomplete="off" :rows="4" />
           </el-form-item>
           <el-form-item label="姓名" prop="name">
-            <el-input v-model="newUser.name" autocomplete="off" :rows="4" />
+            <el-input v-model="newUserR.name" autocomplete="off" :rows="4" />
           </el-form-item>
           <el-form-item label="手机号" prop="phone">
-            <el-input v-model="newUser.phone" autocomplete="off" :rows="4" />
+            <el-input v-model="newUserR.phone" autocomplete="off" :rows="4" />
           </el-form-item>
         </el-form>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="dialogFormVisible2 = false">取消</el-button>
-            <el-button type="primary" @click="handleConfirm2" :loading="submitting">确认</el-button>
+            <el-button @click="dialogFormVisibleR2 = false">取消</el-button>
+            <el-button type="primary" @click="handleConfirmF2" :loading="submittingR">
+              确认
+            </el-button>
           </span>
         </template>
       </el-dialog>
@@ -127,45 +135,45 @@ const userStore = useUserStore()
 const user = userStore.UserS
 
 const message = useMessage()
-const dialogFormVisible1 = ref(false)
-const dialogFormVisible2 = ref(false)
-const submitting = ref(false)
-const formRef = ref<FormInstance>()
-const formUserRef = ref<FormInstance>()
+const dialogFormVisibleR1 = ref(false)
+const dialogFormVisibleR2 = ref(false)
+const submittingR = ref(false)
+const formIns = ref<FormInstance>()
+const formUserIns = ref<FormInstance>()
 
-const form = ref({
+const formR = ref({
   password: '',
   confirmPassword: ''
 })
 
-const newUser = ref({
+const newUserR = ref({
   name: '',
   account: '',
   phone: ''
 })
 
 // 获取学院名称
-const { data: college } = CollegeAdmin.getCollegeService()
+const { data: collegeR } = CollegeAdmin.getCollegeService()
 
 // 打开弹窗1
-const openDialog1 = () => {
-  dialogFormVisible1.value = true
-  form.value.password = ''
+const openDialogF1 = () => {
+  dialogFormVisibleR1.value = true
+  formR.value.password = ''
 }
 
 // 打开弹窗2
-const openDialog2 = () => {
-  dialogFormVisible2.value = true
-  newUser.value.account = ''
-  newUser.value.name = ''
-  newUser.value.phone = ''
+const openDialogF2 = () => {
+  dialogFormVisibleR2.value = true
+  newUserR.value.account = ''
+  newUserR.value.name = ''
+  newUserR.value.phone = ''
 }
 
 // 修改密码
-const handleConfirm1 = async () => {
-  await formRef.value?.validate()
-  console.log(form.value.password)
-  await CollegeAdmin.updatePasswordService(form.value as Userx)
+const handleConfirmF1 = async () => {
+  await formIns.value?.validate()
+  console.log(formR.value.password)
+  await CollegeAdmin.updatePasswordService(formR.value as Userx)
   message.success('密码修改成功，请重新登录！')
   userStore.clear()
   sessionStorage.clear()
@@ -173,18 +181,18 @@ const handleConfirm1 = async () => {
 }
 
 // 关闭dialog
-const handleClose = () => {
-  dialogFormVisible1.value = false
-  dialogFormVisible2.value = false
-  formRef.value?.resetFields()
-  formUserRef.value?.resetFields()
+const handleCloseF = () => {
+  dialogFormVisibleR1.value = false
+  dialogFormVisibleR2.value = false
+  formIns.value?.resetFields()
+  formUserIns.value?.resetFields()
 }
 
 // 更新信息
-const handleConfirm2 = async () => {
-  await formUserRef.value?.validate()
-  await CollegeAdmin.updateUserInfoService(newUser.value)
-  dialogFormVisible2.value = false
+const handleConfirmF2 = async () => {
+  await formUserIns.value?.validate()
+  await CollegeAdmin.updateUserInfoService(newUserR.value)
+  dialogFormVisibleR2.value = false
   message.success('更新成功!')
 }
 
@@ -198,7 +206,7 @@ const rules = ref({
     { required: true, message: '请确认密码', trigger: 'blur' },
     {
       validator: (rule: any, value: string, callback: any) => {
-        if (value !== form.value.password) {
+        if (value !== formR.value.password) {
           callback(new Error('两次输入的密码不一致'))
         } else {
           callback()
