@@ -7,10 +7,6 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/login/LoginView.vue')
   },
   {
-    path: '/header',
-    component: () => import('@/views/main/header/IndexView.vue')
-  },
-  {
     path: '/Admin',
     component: () => import('@/views/main/Admin/IndexView.vue'),
     redirect: '/college',

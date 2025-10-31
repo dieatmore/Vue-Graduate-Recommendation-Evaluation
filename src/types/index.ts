@@ -1,3 +1,5 @@
+import type { Component } from 'vue'
+
 export interface ResultVO {
   code: number
   message?: string
@@ -83,4 +85,13 @@ export interface TargetNode {
   comment?: string | null
   createTime?: string
   updateTime?: string
+}
+
+// 菜单项
+export interface MenuItem {
+  name: string
+  path: string
+  icon?: Component
+  style?: { [key: string]: string }
+  children?: MenuItem[]
 }

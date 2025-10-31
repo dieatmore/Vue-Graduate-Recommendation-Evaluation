@@ -97,13 +97,19 @@
 <script setup lang="ts">
 import { useMessage } from '@/components/message'
 import { CollegeAdmin } from '@/services/CollegeAdmin'
+import { useUserStore } from '@/stores/UserStore'
 import type { Category } from '@/types'
 import { DeleteFilled, EditPen, Plus, RefreshRight, Search } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
-import { ref } from 'vue'
+import { ref, toRef } from 'vue'
 
 const message = useMessage()
-const { data: categoryListR } = CollegeAdmin.getCategoryService() // 初始化
+const userStore = useUserStore()
+const user = userStore.UserS
+const role = toRef(() => user.value?.role)
+
+const { data: categoryListR } = CollegeAdmin.getCategoryService(role) // 初始化
+
 const dialogFormVisibleR = ref(false)
 const dialogStatusR = ref('add') // add or edit
 const formIns = ref<FormInstance>()

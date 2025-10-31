@@ -1,6 +1,6 @@
 import { useDelete, useGet, usePatch, usePost } from '@/axios'
 import { useUserStore } from '@/stores/UserStore'
-import type { Category, Major, TargetNode, Userx } from '@/types'
+import { Role, type Category, type Major, type TargetNode, type Userx } from '@/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 import { querycachename } from './Const'
@@ -28,18 +28,20 @@ const updateUserInfoService = async (user: Userx) => {
 }
 
 // 获取类别列表
-const getCategoryService = () => {
+const getCategoryService = (role: Ref) => {
   return useQuery({
     queryKey: [querycachename.college.categories],
-    queryFn: () => useGet(`collegeadmin/categorys`)
+    queryFn: () => useGet(`collegeadmin/categorys`),
+    enabled: computed(() => role.value == Role.COLLAGE_ADMIN)
   })
 }
 
 // 获取类别专业对应关系列表
-const getCatMajorsService = () => {
+const getCatMajorsService = (role: Ref) => {
   return useQuery({
     queryKey: [querycachename.college.categorysmajors],
-    queryFn: () => useGet('collegeadmin/categorys/catmajors')
+    queryFn: () => useGet('collegeadmin/categorys/catmajors'),
+    enabled: computed(() => role.value == Role.COLLAGE_ADMIN)
   })
 }
 
