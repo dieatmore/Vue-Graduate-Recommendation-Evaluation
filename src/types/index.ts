@@ -95,3 +95,19 @@ export interface MenuItem {
   style?: { [key: string]: string }
   children?: MenuItem[]
 }
+
+// 日志
+export interface LogRecord {
+  mark: number // 分数
+  time: string // 时间
+  comment: string // 信息
+  username: string // 审批人
+}
+
+// 提交状态
+export enum status {
+  SUBMIT = 'y02Q', // 已提交
+  REVIEW = 'P5eR', // 待修改
+  REJECT = 'b7Yz', // 被驳回
+  CONFIRM = '59G7' // 已认定
+}

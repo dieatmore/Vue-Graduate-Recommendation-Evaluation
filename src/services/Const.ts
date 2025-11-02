@@ -8,8 +8,11 @@ export const querycachename = {
     majorsbycatid: 'majorsbycatid',
     teacherscats: 'teacherscats',
     categoryadminscategories: 'categoryadminscategories',
+    submitnodes: 'submitnodes',
+    childrennodes: 'childrennodes',
     category: {
-      noderules: 'noderules'
+      noderules: 'noderules',
+      rootnodes: 'rootnodes'
     }
   }
 }

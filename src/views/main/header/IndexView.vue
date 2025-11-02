@@ -93,12 +93,15 @@
   </div>
 </template>
 <script setup lang="ts">
+import { redirectService } from '@/router'
 import { CollegeAdmin } from '@/services/CollegeAdmin'
 import { LogoutService } from '@/services/LoginService'
+import { Student } from '@/services/Student'
 import { useUserStore } from '@/stores/UserStore'
-import { Role, type Category, type MenuItem } from '@/types'
+import { Role, type Category, type MenuItem, type TargetNode } from '@/types'
 import {
   Avatar,
+  Edit,
   Expand,
   Fold,
   Menu as IconMenu,
@@ -130,6 +133,14 @@ const {
   isEnabled: isCatMajors
 } = CollegeAdmin.getCatMajorsService(role) // 学生审批
 if (isCatMajors.value) await suspenseMark()
+
+// Student
+const {
+  data: rootnodesR,
+  suspense: suspenseRoot,
+  isEnabled: isRoot
+} = Student.getRootNodeService(role) // 获取一级节点
+if (isRoot.value) await suspenseRoot()
 
 // computed获取菜单数据
 const menuItemsR = computed<MenuItem[]>(() => {
@@ -171,7 +182,7 @@ const menuItemsR = computed<MenuItem[]>(() => {
     items.push({
       name: '学生审批',
       path: '/mark',
-      icon: List,
+      icon: Edit,
       style: { 'font-weight': 'bolder' },
       children: catMajorsR.value.map((catMajors: any) => ({
         name: catMajors.categoryName,
@@ -201,6 +212,23 @@ const menuItemsR = computed<MenuItem[]>(() => {
     items.push({
       name: '个人中心',
       path: '/userinfo',
+      icon: Avatar,
+      style: { 'font-weight': 'bolder' }
+    })
+  }
+
+  if (user.value?.role == Role.STUDENT) {
+    redirectService(rootnodesR)
+    rootnodesR.value.forEach((node: TargetNode) => {
+      items.push({
+        name: node.name as string,
+        path: `/rootnodes/${node.id}/nodes`,
+        style: { 'font-weight': 'bolder' }
+      })
+    })
+    items.push({
+      name: '个人中心',
+      path: '/studentinfo',
       icon: Avatar,
       style: { 'font-weight': 'bolder' }
     })

@@ -1,4 +1,5 @@
 import { Role } from '@/types'
+import { ref, type Ref } from 'vue'
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
@@ -57,6 +58,22 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/main/CollegeAdmin/UserInfo.vue')
       }
     ]
+  },
+  {
+    path: '/Student',
+    component: () => import('@/views/main/Student/IndexView.vue'),
+    redirect: () => '/studentinfo',
+    meta: { role: Role.STUDENT },
+    children: [
+      {
+        path: '/rootnodes/:nodeId/nodes',
+        component: () => import('@/views/main/Student/SubmitView.vue')
+      },
+      {
+        path: '/studentinfo',
+        component: () => import('@/views/main/Student/StudentInfo.vue')
+      }
+    ]
   }
 ]
 
@@ -78,4 +95,10 @@ router.beforeEach(to => {
   return '/'
 })
 
+const firstId = ref('')
 export default router
+export const redirectService = (pathsR: Ref) => {
+  if (pathsR.value && pathsR.value.length > 0) {
+    firstId.value = pathsR.value[0].id
+  }
+}
