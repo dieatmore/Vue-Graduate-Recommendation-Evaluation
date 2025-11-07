@@ -42,6 +42,10 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/main/CollegeAdmin/TeacherView.vue')
       },
       {
+        path: '/students/:studentId',
+        component: () => import('@/views/main/CollegeAdmin/StudentDetail.vue')
+      },
+      {
         path: '/categorys/:categoryId/noderules',
         component: () => import('@/views/main/CollegeAdmin/NodeRule.vue')
       },

@@ -9,6 +9,9 @@ export const querycachename = {
     teacherscats: 'teacherscats',
     categoryadminscategories: 'categoryadminscategories',
     submitnodes: 'submitnodes',
+    studentslist: 'studentslist',
+    studentinfo: 'studentinfo',
+    studentdetail: 'studentdetail',
     childrennodes: 'childrennodes',
     category: {
       noderules: 'noderules',

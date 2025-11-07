@@ -2,65 +2,100 @@
   <div class="w-full main-container bg-[#F9FAFB] py-4 px-8">
     <!-- 功能栏 -->
     <div
-      class="h-[10%] mt-4 bg-white p-4 rounded-xl border-gray shadow-sm hover-shadow"
+      class="h-[20%] mt-4 bg-white p-4 rounded-xl justify-evenly border-gray shadow-sm hover-shadow"
       style="border-width: 1px">
-      <el-button type="success" class="ml-4" @click="dialogNodeVisible = true">
-        <Plus style="width: 1em; height: 1em; margin-right: 4px" />
-        新增提交指标
-      </el-button>
+      <el-popconfirm
+        :title="studentInfoR?.status == 0 ? '确定认定该成绩吗？' : '确定重置成绩状态吗？'"
+        confirm-button-text="确认"
+        cancel-button-text="取消">
+        <template #reference>
+          <el-button
+            :type="studentInfoR?.status == 0 ? 'primary' : 'default'"
+            size="mini"
+            class="status-btn float-right mr-4">
+            {{ studentInfoR?.status == 0 ? '认定成绩' : '重置状态' }}
+          </el-button>
+        </template>
+      </el-popconfirm>
+      <el-descriptions class="w-full" :column="3" border size="large" title="学生基本信息">
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon>
+                <EditPen />
+              </el-icon>
+              姓名
+            </div>
+          </template>
+          {{ studentInfoR?.name }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon>
+                <User />
+              </el-icon>
+              账号
+            </div>
+          </template>
+          {{ studentInfoR?.account }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon>
+                <Iphone />
+              </el-icon>
+              手机号
+            </div>
+          </template>
+          {{ studentInfoR?.phone || '暂无信息' }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon>
+                <Iphone />
+              </el-icon>
+              成绩
+            </div>
+          </template>
+          {{ studentInfoR?.scorex || '暂无信息' }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon>
+                <Iphone />
+              </el-icon>
+              排名
+            </div>
+          </template>
+          {{ studentInfoR?.ranking || '暂无信息' }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">
+              <el-icon>
+                <Iphone />
+              </el-icon>
+              成绩状态
+            </div>
+          </template>
+          <el-tag type="success" v-if="studentInfoR?.status == 1">已认定</el-tag>
+          <el-tag type="default" v-if="studentInfoR?.status == 0">未认定</el-tag>
+        </el-descriptions-item>
+      </el-descriptions>
     </div>
 
-    <!-- 新增指标dialog -->
-    <el-dialog v-model="dialogNodeVisible" title="新增指标" width="600px">
-      <el-tree
-        class="w-full"
-        :data="childrenNodesR"
-        node-key="id"
-        default-expand-all
-        :expand-on-click-node="false"
-        :indent="16">
-        <template #default="{ data }">
-          <div class="tree-node-container flex items-center justify-between w-full">
-            <div class="node-name font-medium text-gray-800">
-              {{ data.name }}
-            </div>
-
-            <div class="node-actions grid grid-cols-2 gap-3 w-[150px]">
-              <div class="rule-btn-container">
-                <el-button
-                  v-if="data.comment"
-                  type="text"
-                  size="mini"
-                  class="text-primary"
-                  @click="openCommentF(data.comment)">
-                  查看规则
-                </el-button>
-              </div>
-
-              <div class="add-btn-container">
-                <el-button
-                  v-if="isLeafNode(data)"
-                  type="text"
-                  size="mini"
-                  class="text-primary"
-                  @click="addSubmit(data.id)">
-                  添加指标
-                </el-button>
-              </div>
-            </div>
-          </div>
-        </template>
-      </el-tree>
-    </el-dialog>
-
-    <!-- 学院列表 -->
+    <!-- 提交列表 -->
     <el-table
       class="w-full mt-8 bg-white border-gray shadow-sm rounded-xl hover-shadow"
-      :data="submitNodesR"
+      :data="studentDetailR"
       stripe
       style="width: 100%; border-width: 1px"
-      height="690"
-      empty-text="暂无提交数据，请添加或刷新">
+      height="603"
+      empty-text="暂无学生数据，请添加或刷新">
       <el-table-column prop="name" label="指标名称">
         <template #default="scope">
           <span class="font-medium">{{ scope.row.name }}</span>
@@ -111,20 +146,8 @@
         <template #default="scope">
           <el-button type="primary" plain>
             <EditPen style="width: 1em; height: 1em; margin-right: 4px" />
-            上传佐证
+            审批指标
           </el-button>
-          <el-popconfirm
-            title="确定删除该类别吗?"
-            confirm-button-text="确认"
-            cancel-button-text="取消"
-            @confirm="handleDeleteF(scope.row.id)">
-            <template #reference>
-              <el-button type="danger" plain>
-                <DeleteFilled style="width: 1em; height: 1em; margin-right: 4px" />
-                删除
-              </el-button>
-            </template>
-          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -155,60 +178,29 @@
           </template>
         </el-table-column>
       </el-table>
-      <div v-if="currentRecords.length === 0" class="no-log">无日志记录</div>
     </el-dialog>
   </div>
 </template>
 <script setup lang="ts">
-import { useMessage } from '@/components/message'
-import { Student } from '@/services/Student'
+import { Teacher } from '@/services/TeacherService'
 import { status, type LogRecord } from '@/types'
-import { DeleteFilled, EditPen, Files, Plus, View } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
+import { EditPen, Files, View } from '@element-plus/icons-vue'
 import { ref, toRef } from 'vue'
 import { useRoute } from 'vue-router'
 
-const message = useMessage()
-const dialogVisible = ref(false)
-const dialogNodeVisible = ref(false)
-const currentRecords = ref<LogRecord[]>([])
 const route = useRoute()
-const rootId = toRef(() => route.params.nodeId)
+const studentIdR = toRef(() => route.params.studentId as string)
+const { data: studentDetailR } = Teacher.getStudentDetailService(studentIdR)
+const { data: studentInfoR } = Teacher.getStudentInfoService(studentIdR)
 
-const { data: submitNodesR } = Student.getSubmitNodesService(rootId)
-const { data: childrenNodesR } = Student.getChildrenService(rootId)
-
-const isLeafNode = (data: any) => {
-  return !data.children || data.children.length === 0
-}
-
-const addSubmitMutation = Student.addSubmitNodeService(rootId)
-const deleteSubmitMutation = Student.deleteSubmitNodeService(rootId)
-
-const addSubmit = async (nodeId: string) => {
-  await addSubmitMutation.mutateAsync(nodeId)
-  dialogNodeVisible.value = false
-  message.success('添加成功！')
-}
-
-// 查看规则说明
-const openCommentF = (comment: string) => {
-  ElMessageBox.alert(`${comment}`, '规则说明', {
-    confirmButtonText: 'OK'
-  })
-}
+const dialogVisible = ref(false)
+const currentRecords = ref<LogRecord[]>([])
 
 // 打开日志
 const openLogDialog = (recordStr: string) => {
   currentRecords.value = []
   currentRecords.value = JSON.parse(recordStr)
   dialogVisible.value = true
-}
-
-// 删除submit状态的提交节点
-const handleDeleteF = async (submitId: string) => {
-  await deleteSubmitMutation.mutateAsync(submitId)
-  message.success('删除成功！')
 }
 
 // 关闭日志
@@ -223,7 +215,6 @@ const formatTime = (timeStr: any) => {
   return timeStr.split('.')[0]
 }
 </script>
-
 <style scoped>
 .main-container {
   min-height: calc(100vh - 64px);
@@ -239,15 +230,10 @@ const formatTime = (timeStr: any) => {
 :deep(.el-form-item__label::before) {
   content: none !important;
 }
-.log-icon {
-  font-size: 20px;
-  transition: font-size 0.2s;
-}
-.log-icon:hover {
-  font-size: 24px;
-}
-.text-primary:hover {
-  text-decoration: underline #409eff;
-  text-underline-offset: 2px;
+:deep(.el-descriptions__title) {
+  color: var(--el-text-color-primary);
+  font-weight: bold;
+  font-size: 18px !important;
+  margin-left: 8px;
 }
 </style>

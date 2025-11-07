@@ -1,4 +1,4 @@
-import { useGet, usePost } from '@/axios'
+import { useDelete, useGet, usePost } from '@/axios'
 import { Role } from '@/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
@@ -39,9 +39,20 @@ const addSubmitNodeService = (rootId: Ref) => {
   })
 }
 
+// 删除提交指标
+const deleteSubmitNodeService = (rootId: Ref) => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (submitId: string) =>
+      useDelete(`student/nodes/${rootId.value}/submits/${submitId}`, submitId),
+    onSuccess: () => qc.refetchQueries({ queryKey: [querycachename.college.submitnodes, rootId] })
+  })
+}
+
 export const Student = {
   getRootNodeService,
   getSubmitNodesService,
   getChildrenService,
-  addSubmitNodeService
+  addSubmitNodeService,
+  deleteSubmitNodeService
 }
