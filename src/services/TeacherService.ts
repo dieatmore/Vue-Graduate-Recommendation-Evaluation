@@ -1,5 +1,5 @@
-import { useGet } from '@/axios'
-import { useQuery } from '@tanstack/vue-query'
+import { useGet, usePatch } from '@/axios'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { Ref } from 'vue'
 import { querycachename } from './Const'
 
@@ -27,8 +27,22 @@ const getStudentInfoService = (studentId: Ref) => {
   })
 }
 
+// 审批提交指标
+const markSubmitNodeService = (studentId: Ref, majorId: Ref) => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ submitId, submitData }: { submitId: string; submitData: any }) =>
+      usePatch(`teacher/students/${studentId.value}/submits/${submitId}`, submitData),
+    onSuccess: () => {
+      qc.refetchQueries({ queryKey: [querycachename.college.studentdetail, studentId] })
+      qc.refetchQueries({ queryKey: [querycachename.college.studentslist, majorId] })
+    }
+  })
+}
+
 export const Teacher = {
   getStudentsListService,
   getStudentDetailService,
-  getStudentInfoService
+  getStudentInfoService,
+  markSubmitNodeService
 }

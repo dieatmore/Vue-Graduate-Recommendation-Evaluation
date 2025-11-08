@@ -13,7 +13,7 @@
             :type="studentInfoR?.status == 0 ? 'primary' : 'default'"
             size="mini"
             class="status-btn float-right mr-4">
-            {{ studentInfoR?.status == 0 ? '认定成绩' : '重置状态' }}
+            {{ studentInfoR?.status == 1 ? '重置状态' : '认定成绩' }}
           </el-button>
         </template>
       </el-popconfirm>
@@ -83,7 +83,7 @@
             </div>
           </template>
           <el-tag type="success" v-if="studentInfoR?.status == 1">已认定</el-tag>
-          <el-tag type="default" v-if="studentInfoR?.status == 0">未认定</el-tag>
+          <el-tag type="default" v-else>未认定</el-tag>
         </el-descriptions-item>
       </el-descriptions>
     </div>
@@ -113,7 +113,7 @@
 
       <el-table-column prop="mark" label="得分">
         <template #default="scope">
-          <span class="font-medium">{{ scope.row.mark || '暂无' }}</span>
+          <span class="font-medium">{{ scope.row.mark }}</span>
         </template>
       </el-table-column>
 
@@ -144,7 +144,7 @@
 
       <el-table-column label="操作">
         <template #default="scope">
-          <el-button type="primary" plain>
+          <el-button type="primary" plain @click="openMarkDialogF(scope.row)">
             <EditPen style="width: 1em; height: 1em; margin-right: 4px" />
             审批指标
           </el-button>
@@ -159,42 +159,97 @@
       width="800px"
       class="py-16"
       :before-close="handleCloseDialog">
-      <el-table
-        :data="currentRecords"
-        border
-        stripe
-        :header-cell-style="{ 'background-color': '#f5f7fa' }"
-        :row-style="{ height: '60px' }">
-        <el-table-column prop="time" label="操作时间" width="200">
-          <template #default="scope">
-            {{ formatTime(scope.row.time) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="username" label="操作人" width="120" />
-        <el-table-column prop="comment" label="操作内容" flex="1" />
-        <el-table-column prop="mark" label="分数" width="100">
-          <template #default="scope">
-            <span class="text-primary">{{ scope.row.mark }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div class="table-scroll-container">
+        <el-table
+          :data="currentRecords"
+          border
+          stripe
+          :header-cell-style="{ 'background-color': '#f5f7fa' }"
+          :row-style="{ height: '60px' }">
+          <el-table-column prop="time" label="操作时间" width="200">
+            <template #default="scope">
+              {{ formatTime(scope.row.time) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="username" label="操作人" width="120" />
+          <el-table-column prop="comment" label="操作内容" flex="1" />
+          <el-table-column prop="mark" label="分数" width="100">
+            <template #default="scope">
+              <span class="text-primary">{{ scope.row.mark }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-dialog>
+
+    <!-- 审批dialog -->
+    <el-dialog v-model="dialogFormVisibleR" @close="handleCloseF" title="审批指标" width="400">
+      <el-form :model="addFormR" ref="formIns" label-width="100px" :rules="rules">
+        <el-form-item label="分数" prop="mark">
+          <div class="input-with-tooltip">
+            <el-input-number
+              v-model="addFormR.mark"
+              :min="0"
+              :max="markThis.maxMark"
+              :step="0.1"
+              :precision="1" />
+            <el-tooltip
+              :content="`提示信息：分数范围为0到${markThis.maxMark}分`"
+              placement="right"
+              effect="dark">
+              <InfoFilled style="width: 1.5em; height: 1.5em; margin-left: 4px" />
+            </el-tooltip>
+          </div>
+        </el-form-item>
+        <el-form-item label="审批说明" prop="comment">
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 4, maxRows: 4 }"
+            autocomplete="off"
+            v-model="addFormR.comment" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="info" @click="handleConfirmF('P5eR')">需修改</el-button>
+          <el-button type="danger" @click="handleConfirmF('b7Yz')">驳回指标</el-button>
+          <el-button type="primary" @click="handleConfirmF('59G7')">认定指标</el-button>
+        </span>
+      </template>
     </el-dialog>
   </div>
 </template>
 <script setup lang="ts">
+import { useMessage } from '@/components/message'
 import { Teacher } from '@/services/TeacherService'
 import { status, type LogRecord } from '@/types'
-import { EditPen, Files, View } from '@element-plus/icons-vue'
+import { EditPen, Files, InfoFilled, View } from '@element-plus/icons-vue'
+import type { FormInstance } from 'element-plus'
 import { ref, toRef } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const studentIdR = toRef(() => route.params.studentId as string)
 const { data: studentDetailR } = Teacher.getStudentDetailService(studentIdR)
-const { data: studentInfoR } = Teacher.getStudentInfoService(studentIdR)
+const { data: studentInfoR, suspense: suspenseInfo } = Teacher.getStudentInfoService(studentIdR)
+await suspenseInfo()
+const majorIdR = toRef(() => studentInfoR.value?.majorId)
+const markSubmitNodeMutation = Teacher.markSubmitNodeService(studentIdR, majorIdR)
 
+const message = useMessage()
+const dialogFormVisibleR = ref(false)
 const dialogVisible = ref(false)
 const currentRecords = ref<LogRecord[]>([])
+
+const markThis = ref()
+
+const formIns = ref<FormInstance>()
+const addFormR = ref({
+  id: '',
+  mark: 0,
+  comment: '',
+  status: ''
+})
 
 // 打开日志
 const openLogDialog = (recordStr: string) => {
@@ -208,12 +263,45 @@ const handleCloseDialog = () => {
   dialogVisible.value = false
 }
 
+// 修改/驳回/认定 按钮
+const handleConfirmF = async (status: string) => {
+  await formIns.value?.validate()
+  addFormR.value.status = status
+  await markSubmitNodeMutation.mutateAsync({
+    submitId: addFormR.value.id,
+    submitData: addFormR.value
+  })
+  dialogFormVisibleR.value = false
+  message.success('审批成功！')
+}
+
+// 打开审批dialog
+const openMarkDialogF = (targetSubmit: any) => {
+  addFormR.value.id = targetSubmit.id
+  markThis.value = targetSubmit
+  dialogFormVisibleR.value = true
+  console.log(markThis)
+}
+
+// 关闭审批dialog
+const handleCloseF = () => {
+  formIns.value?.resetFields()
+  dialogFormVisibleR.value = false
+  addFormR.value.mark = 0
+}
 // 格式化时间
 const formatTime = (timeStr: any) => {
   // 将 "2025-10-06 15:11:19.000000" 转为 "2025-10-06 15:11:19"
   if (!timeStr) return ''
   return timeStr.split('.')[0]
 }
+
+const rules = ref({
+  mark: [{ required: true, message: '请输入分数', trigger: ['blur', 'change'] }],
+  comment: [
+    { required: true, max: 200, message: '规则说明最多200个字符', trigger: ['blur', 'change'] }
+  ]
+})
 </script>
 <style scoped>
 .main-container {
@@ -235,5 +323,30 @@ const formatTime = (timeStr: any) => {
   font-weight: bold;
   font-size: 18px !important;
   margin-left: 8px;
+}
+.input-with-tooltip {
+  display: flex;
+  align-items: center;
+}
+.table-scroll-container {
+  height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: -16px;
+  padding: 16px;
+}
+.table-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+.table-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #e0e0e0;
+  border-radius: 3px;
+}
+.table-scroll-container::-webkit-scrollbar-track {
+  background-color: #f5f5f5;
+}
+
+::v-deep .el-table {
+  width: 100%;
 }
 </style>

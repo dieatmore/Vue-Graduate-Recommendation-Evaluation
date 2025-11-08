@@ -104,6 +104,16 @@ export interface LogRecord {
   username: string // 审批人
 }
 
+// 提交指标
+export interface TargetSubmit {
+  id?: string
+  name?: string
+  mark: number
+  comment: string
+  status: string
+  createTime?: string
+  updateTime?: string
+}
 // 提交状态
 export enum status {
   SUBMIT = 'y02Q', // 已提交

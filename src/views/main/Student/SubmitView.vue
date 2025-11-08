@@ -109,7 +109,7 @@
 
       <el-table-column label="操作">
         <template #default="scope">
-          <el-button type="primary" plain>
+          <el-button type="primary" plain @click="openFormF(scope.row.id)">
             <EditPen style="width: 1em; height: 1em; margin-right: 4px" />
             上传佐证
           </el-button>
@@ -157,6 +157,7 @@
       </el-table>
       <div v-if="currentRecords.length === 0" class="no-log">无日志记录</div>
     </el-dialog>
+    <FileDialog ref="formRef" width="500px" height="300px" />
   </div>
 </template>
 <script setup lang="ts">
@@ -167,6 +168,7 @@ import { DeleteFilled, EditPen, Files, Plus, View } from '@element-plus/icons-vu
 import { ElMessageBox } from 'element-plus'
 import { ref, toRef } from 'vue'
 import { useRoute } from 'vue-router'
+import FileDialog from './FileDialog.vue'
 
 const message = useMessage()
 const dialogVisible = ref(false)
@@ -196,6 +198,12 @@ const openCommentF = (comment: string) => {
   ElMessageBox.alert(`${comment}`, '规则说明', {
     confirmButtonText: 'OK'
   })
+}
+
+const formRef = ref()
+// 打开上传佐证dialog
+const openFormF = (id: string) => {
+  formRef.value.open(id)
 }
 
 // 打开日志

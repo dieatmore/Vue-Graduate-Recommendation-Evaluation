@@ -612,10 +612,6 @@ video {
   right: 2rem;
 }
 
-.float-end {
-  float: inline-end;
-}
-
 .float-right {
   float: right;
 }
@@ -649,6 +645,10 @@ video {
   margin-right: 0.375rem;
 }
 
+.mr-4 {
+  margin-right: 1rem;
+}
+
 .mt-2 {
   margin-top: 0.5rem;
 }
@@ -663,10 +663,6 @@ video {
 
 .mt-8 {
   margin-top: 2rem;
-}
-
-.mr-4 {
-  margin-right: 1rem;
 }
 
 .block {
@@ -693,12 +689,12 @@ video {
   height: 10%;
 }
 
-.h-full {
-  height: 100%;
-}
-
 .h-\[20\%\] {
   height: 20%;
+}
+
+.h-full {
+  height: 100%;
 }
 
 .w-6 {

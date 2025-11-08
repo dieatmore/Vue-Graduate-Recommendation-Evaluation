@@ -76,6 +76,10 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/studentinfo',
         component: () => import('@/views/main/Student/StudentInfo.vue')
+      },
+      {
+        path: '/filedialog',
+        component: () => import('@/views/main/Student/FileDialog.vue')
       }
     ]
   }
