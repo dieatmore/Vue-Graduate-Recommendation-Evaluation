@@ -82,18 +82,27 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="佐证文件">
+      <el-table-column label="佐证文件" width="300">
         <template #default="scope">
           <div v-if="scope.row.files.length === 0" class="text-gray-400 text-sm">暂无佐证</div>
-
           <div v-else class="admin-list">
             <span v-for="(file, index) in scope.row.files" :key="file.id" class="admin-item">
-              <el-tooltip class="box-item" effect="dark" content="点击查看文件" placement="top">
-                <el-button type="info" :icon="Files" size="small">
-                  {{ file.name }}
-                </el-button>
-              </el-tooltip>
-              <span v-if="index < scope.row.files.length - 1" class="separator mx-1">&</span>
+              <div class="flex items-center">
+                <span class="file_name w-200" @click="openFileF(file.id)">{{ file.fileName }}</span>
+                <el-popconfirm
+                  title="确定删除该文件吗?"
+                  confirm-button-text="确认"
+                  cancel-button-text="取消"
+                  @confirm="deleteFileF(file.id)">
+                  <template #reference>
+                    <CircleClose
+                      v-if="scope.row.status == status.SUBMIT || scope.row.status == status.REVIEW"
+                      style="width: 1em; height: 1em; margin-left: 4px"
+                      class="circle-close-icon" />
+                  </template>
+                </el-popconfirm>
+              </div>
+              <span v-if="index < scope.row.files.length - 1" class="separator mx-1"><br /></span>
             </span>
           </div>
         </template>
@@ -109,7 +118,7 @@
 
       <el-table-column label="操作">
         <template #default="scope">
-          <el-button type="primary" plain @click="openFormF(scope.row.id)">
+          <el-button type="primary" plain @click="openFormF(scope.row)">
             <EditPen style="width: 1em; height: 1em; margin-right: 4px" />
             上传佐证
           </el-button>
@@ -157,14 +166,14 @@
       </el-table>
       <div v-if="currentRecords.length === 0" class="no-log">无日志记录</div>
     </el-dialog>
-    <FileDialog ref="formRef" width="500px" height="300px" />
+    <FileDialog ref="formRef" width="500px" height="300px" @refresh="refreshListF" />
   </div>
 </template>
 <script setup lang="ts">
 import { useMessage } from '@/components/message'
 import { Student } from '@/services/Student'
 import { status, type LogRecord } from '@/types'
-import { DeleteFilled, EditPen, Files, Plus, View } from '@element-plus/icons-vue'
+import { CircleClose, DeleteFilled, EditPen, Plus, View } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { ref, toRef } from 'vue'
 import { useRoute } from 'vue-router'
@@ -177,7 +186,7 @@ const currentRecords = ref<LogRecord[]>([])
 const route = useRoute()
 const rootId = toRef(() => route.params.nodeId)
 
-const { data: submitNodesR } = Student.getSubmitNodesService(rootId)
+const { data: submitNodesR, refetch: refetchList } = Student.getSubmitNodesService(rootId)
 const { data: childrenNodesR } = Student.getChildrenService(rootId)
 
 const isLeafNode = (data: any) => {
@@ -186,6 +195,7 @@ const isLeafNode = (data: any) => {
 
 const addSubmitMutation = Student.addSubmitNodeService(rootId)
 const deleteSubmitMutation = Student.deleteSubmitNodeService(rootId)
+const deleteFileMutation = Student.deleteFileService(rootId)
 
 const addSubmit = async (nodeId: string) => {
   await addSubmitMutation.mutateAsync(nodeId)
@@ -202,8 +212,26 @@ const openCommentF = (comment: string) => {
 
 const formRef = ref()
 // 打开上传佐证dialog
-const openFormF = (id: string) => {
-  formRef.value.open(id)
+const openFormF = (submitNode: any) => {
+  if (submitNode.status == status.CONFIRM || submitNode.status === status.REJECT) {
+    message.warning('已认定或者被驳回指标不可提交佐证材料！')
+    return
+  }
+  formRef.value.open(submitNode.id)
+}
+
+// 打开文件
+const openFileF = (fileId: string) => {}
+
+// 删除文件
+const deleteFileF = async (fileId: string) => {
+  await deleteFileMutation.mutateAsync(fileId)
+  message.success('删除文件成功！')
+}
+
+// 上传文件更新列表
+const refreshListF = () => {
+  refetchList()
 }
 
 // 打开日志
@@ -239,6 +267,12 @@ const formatTime = (timeStr: any) => {
 ::v-deep .el-table .cell {
   text-align: center;
 }
+.file_name {
+  cursor: pointer;
+}
+.file_name:hover {
+  text-decoration: underline;
+}
 .hover-shadow {
   overflow: auto;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -257,5 +291,22 @@ const formatTime = (timeStr: any) => {
 .text-primary:hover {
   text-decoration: underline #409eff;
   text-underline-offset: 2px;
+}
+.circle-close-icon:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* 悬浮样式：颜色变深 + 轻微缩放 */
+.circle-close-icon:hover {
+  color: #f56c6c; /* 红色系，与删除操作呼应 */
+  transform: scale(1.1); /* 轻微放大 */
+  transition: all 0.2s ease; /* 过渡动画，更流畅 */
+  cursor: pointer; /* 鼠标变成手型，提示可点击 */
+}
+
+/* 可选：点击时的按压效果 */
+.circle-close-icon:active {
+  transform: scale(0.95);
 }
 </style>

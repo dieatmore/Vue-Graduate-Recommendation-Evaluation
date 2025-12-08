@@ -114,10 +114,20 @@ export interface TargetSubmit {
   createTime?: string
   updateTime?: string
 }
+
 // 提交状态
 export enum status {
   SUBMIT = 'y02Q', // 已提交
   REVIEW = 'P5eR', // 待修改
   REJECT = 'b7Yz', // 被驳回
   CONFIRM = '59G7' // 已认定
+}
+
+// 进度条
+export interface Progress {
+  percentage: number
+  rate: number
+  total: number
+  loaded: number
+  title: string
 }
