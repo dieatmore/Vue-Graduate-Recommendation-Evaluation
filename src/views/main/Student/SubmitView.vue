@@ -221,7 +221,11 @@ const openFormF = (submitNode: any) => {
 }
 
 // 打开文件
-const openFileF = (fileId: string) => {}
+const openFileF = (fileId: string) => {
+  const url = `/api/open/openfile/${fileId}`
+  // 新窗口打开（浏览器自动解析文件流）
+  window.open(url, '_blank')
+}
 
 // 删除文件
 const deleteFileF = async (fileId: string) => {

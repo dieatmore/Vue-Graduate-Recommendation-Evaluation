@@ -123,12 +123,10 @@
 
           <div v-else class="admin-list">
             <span v-for="(file, index) in scope.row.files" :key="file.id" class="admin-item">
-              <el-tooltip class="box-item" effect="dark" content="点击查看文件" placement="top">
-                <el-button type="info" :icon="Files" size="small">
-                  {{ file.name }}
-                </el-button>
-              </el-tooltip>
-              <span v-if="index < scope.row.files.length - 1" class="separator mx-1">&</span>
+              <div class="flex items-center">
+                <span class="file_name w-200" @click="openFileF(file.id)">{{ file.fileName }}</span>
+              </div>
+              <span v-if="index < scope.row.files.length - 1" class="separator mx-1"><br /></span>
             </span>
           </div>
         </template>
@@ -223,7 +221,7 @@
 import { useMessage } from '@/components/message'
 import { Teacher } from '@/services/TeacherService'
 import { status, type LogRecord } from '@/types'
-import { EditPen, Files, InfoFilled, View } from '@element-plus/icons-vue'
+import { EditPen, InfoFilled, View } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 import { ref, toRef } from 'vue'
 import { useRoute } from 'vue-router'
@@ -261,6 +259,13 @@ const openLogDialog = (recordStr: string) => {
 // 关闭日志
 const handleCloseDialog = () => {
   dialogVisible.value = false
+}
+
+// 打开文件
+const openFileF = (fileId: string) => {
+  const url = `/api/open/openfile/${fileId}`
+  // 新窗口打开（浏览器自动解析文件流）
+  window.open(url, '_blank')
 }
 
 // 修改/驳回/认定 按钮
@@ -345,7 +350,12 @@ const rules = ref({
 .table-scroll-container::-webkit-scrollbar-track {
   background-color: #f5f5f5;
 }
-
+.file_name {
+  cursor: pointer;
+}
+.file_name:hover {
+  text-decoration: underline;
+}
 ::v-deep .el-table {
   width: 100%;
 }

@@ -172,8 +172,10 @@ const openDialogF = (params: openParams) => {
 
 // 查看规则说明
 const openCommentF = (comment: string) => {
-  ElMessageBox.alert(`${comment}`, '规则说明', {
-    confirmButtonText: 'OK'
+  const formattedComment = comment.replace(/\n/g, '<br/>')
+  ElMessageBox.alert(formattedComment, '规则说明', {
+    confirmButtonText: 'OK',
+    dangerouslyUseHTMLString: true // 关键：允许渲染 HTML 内容
   })
 }
 
@@ -237,7 +239,7 @@ const rules = ref({
     { max: 100, message: '指标名称最多100个字符', trigger: ['blur', 'change'] }
   ],
   maxMark: [{ required: true, message: '请输入上限分数', trigger: ['blur', 'change'] }],
-  comment: [{ max: 200, message: '规则说明最多200个字符', trigger: ['blur', 'change'] }]
+  comment: [{ max: 800, message: '规则说明最多800个字符', trigger: ['blur', 'change'] }]
 })
 </script>
 <style scoped>
