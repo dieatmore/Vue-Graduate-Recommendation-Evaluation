@@ -66,6 +66,46 @@
       <div class="flex">
         <span class="el-descriptions__title">学生具体信息</span>
         <div class="mx-auto flex items-center">
+          <el-text tag="ins" class="text-red-500 font-bold">
+            所有评价认定指标、分数限定、项限定等，以《学院推荐免试攻读研究生全面发展成绩指标》文件为准！所有成绩，已学院审核认定为准！
+          </el-text>
+        </div>
+      </div>
+      <div class="mt-16 ml-4 flex">
+        <div>
+          <el-descriptions :column="1">
+            <el-descriptions-item label-align="left" label="已认定成绩" class="mt-4">
+              <el-tag type="primary" effect="dark" round size="large">
+                {{ detailInfoR?.confirmed_score || '暂无信息' }}
+              </el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label-align="left" label="已认定项数" class="mt-4">
+              <el-tag type="success" round>
+                {{ detailInfoR?.confirmed_items || '暂无信息' }}
+              </el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label-align="left" label="待审核项数">
+              <el-tag type="warning" round>
+                {{ detailInfoR?.pending_items || '暂无信息' }}
+              </el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label-align="left" label="待修改项数">
+              <el-tag type="info" round>
+                {{ detailInfoR?.modify_items || '暂无信息' }}
+              </el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label-align="left" label="已驳回项数">
+              <el-tag type="error" round>
+                {{ detailInfoR?.rejected_items || '暂无信息' }}
+              </el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label-align="left" label="总提交项数">
+              <el-tag>{{ detailInfoR?.total_items || '暂无信息' }}</el-tag>
+            </el-descriptions-item>
+          </el-descriptions>
+        </div>
+
+        <div class="mx-auto flex items-center">
           <el-text size="large" class="font-bold" tag="mark">
             当前总成绩：
             <el-tag type="primary" effect="dark" round>91.5</el-tag>
@@ -81,38 +121,6 @@
             </el-tag>
           </el-text>
         </div>
-      </div>
-      <div class="mt-16 ml-4">
-        <el-descriptions title="指标统计信息" :column="1">
-          <el-descriptions-item label-align="left" label="已认定成绩">
-            <el-tag type="primary" effect="dark" round>
-              {{ detailInfoR?.confirmed_score || '暂无信息' }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label-align="left" label="已认定项数">
-            <el-tag type="success" round>
-              {{ detailInfoR?.confirmed_items || '暂无信息' }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label-align="left" label="待审核项数">
-            <el-tag type="warning" round>
-              {{ detailInfoR?.pending_items || '暂无信息' }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label-align="left" label="待修改项数">
-            <el-tag type="info" round>
-              {{ detailInfoR?.modify_items || '暂无信息' }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label-align="left" label="已驳回项数">
-            <el-tag type="error" round>
-              {{ detailInfoR?.rejected_items || '暂无信息' }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label-align="left" label="总提交项数">
-            <el-tag>{{ detailInfoR?.total_items || '暂无信息' }}</el-tag>
-          </el-descriptions-item>
-        </el-descriptions>
       </div>
     </div>
   </div>
@@ -151,7 +159,12 @@ await suspenseDetail()
   background-color: #909399 !important;
   color: white !important;
 }
-
+:deep(.el-descriptions__body .el-descriptions__table:not(.is-bordered) .el-descriptions__cell) {
+  padding-bottom: 55px;
+}
+:deep(.el-descriptions__label:not(.is-bordered-label)) {
+  font-size: large;
+}
 :deep(.el-descriptions__title) {
   color: var(--el-text-color-primary);
   font-weight: bold;
