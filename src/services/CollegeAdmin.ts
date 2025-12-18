@@ -32,6 +32,12 @@ const getCategoryService = (role: Ref) => {
   return useQuery({
     queryKey: [querycachename.college.categories],
     queryFn: () => useGet(`collegeadmin/categorys`),
+    select: (data: Category[]) => {
+      return data.map(item => ({
+        ...item,
+        weight: JSON.parse(item.weight)
+      }))
+    },
     enabled: computed(() => role.value == Role.COLLAGE_ADMIN)
   })
 }

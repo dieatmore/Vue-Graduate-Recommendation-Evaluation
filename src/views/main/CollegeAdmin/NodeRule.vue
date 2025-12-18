@@ -24,8 +24,8 @@
             v-model="addFormR.maxMark"
             :min="0.1"
             :max="50"
-            :step="0.1"
-            :precision="1" />
+            :step="0.05"
+            :precision="2" />
         </el-form-item>
         <el-form-item label="最大项数" prop="maxNumber">
           <el-input-number v-model="addFormR.maxNumber" :min="0" :max="10" placeholder="(选填)" />
@@ -58,7 +58,8 @@
         @node-drag-end="handleDragEndF"
         :allow-drop="allowDropF"
         default-expand-all
-        :expand-on-click-node="false">
+        :expand-on-click-node="false"
+        style="height: 700px; padding-right: 4px; overflow-y: auto">
         <template #default="{ data }">
           <span class="custom-tree-node">
             <div>
@@ -175,7 +176,7 @@ const openCommentF = (comment: string) => {
   const formattedComment = comment.replace(/\n/g, '<br/>')
   ElMessageBox.alert(formattedComment, '规则说明', {
     confirmButtonText: 'OK',
-    dangerouslyUseHTMLString: true // 关键：允许渲染 HTML 内容
+    dangerouslyUseHTMLString: true // 允许渲染 HTML 内容
   })
 }
 
@@ -258,5 +259,39 @@ const rules = ref({
   align-items: center;
   justify-content: space-between;
   font-size: 16px;
+}
+/* 滚动条整体宽度 */
+:deep(::-webkit-scrollbar) {
+  width: 8px; /* 垂直滚动条宽度 */
+  height: 8px; /* 水平滚动条高度（按需保留） */
+}
+
+/* 滚动条轨道（背景） */
+:deep(::-webkit-scrollbar-track) {
+  background: #f5f7fa; /* 轨道颜色，和树的背景色呼应 */
+  border-radius: 4px; /* 轨道圆角，更圆润 */
+}
+
+/* 滚动条滑块（拖动部分） */
+:deep(::-webkit-scrollbar-thumb) {
+  background: #d1d5db; /* 滑块默认颜色 */
+  border-radius: 4px; /* 滑块圆角，避免尖锐 */
+  transition: background 0.2s ease; /* hover 过渡效果 */
+}
+
+/* 滑块 hover 状态 */
+:deep(::-webkit-scrollbar-thumb:hover) {
+  background: #9ca3af; /* 滑块 hover 加深颜色 */
+}
+
+/* 滑块激活（拖动时）状态 */
+:deep(::-webkit-scrollbar-thumb:active) {
+  background: #6b7280; /* 滑块激活颜色 */
+}
+
+/* 兼容 Firefox（可选，无需穿透，直接全局） */
+* {
+  scrollbar-width: thin; /* 滚动条宽度：thin/auto/none */
+  scrollbar-color: #d1d5db #f5f7fa; /* 滑块颜色 + 轨道颜色 */
 }
 </style>

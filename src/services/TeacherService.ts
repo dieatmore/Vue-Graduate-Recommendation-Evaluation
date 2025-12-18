@@ -1,6 +1,6 @@
 import { useGet, usePatch } from '@/axios'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import type { Ref } from 'vue'
+import { computed, type Ref } from 'vue'
 import { querycachename } from './Const'
 
 // 获取学生统计列表
@@ -40,9 +40,19 @@ const markSubmitNodeService = (studentId: Ref, majorId: Ref) => {
   })
 }
 
+// 获取某节点下所有提交信息
+const getSubmitsByNodeService = (nodeIdR: Ref, studentIdR: Ref) => {
+  return useQuery({
+    queryKey: [querycachename.college.submitsinfo, nodeIdR, studentIdR],
+    queryFn: () => useGet(`teacher/students/${studentIdR.value}/nodes/${nodeIdR.value}`),
+    enabled: computed(() => !!nodeIdR.value && !!studentIdR.value)
+  })
+}
+
 export const Teacher = {
   getStudentsListService,
   getStudentDetailService,
+  getSubmitsByNodeService,
   getStudentInfoService,
   markSubmitNodeService
 }

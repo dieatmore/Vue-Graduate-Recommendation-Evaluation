@@ -110,7 +110,7 @@ const majorIdR = toRef(() => route.params.majorId as string)
 const { data: studentListR } = Teacher.getStudentsListService(catIdR, majorIdR) // 获取学生统计列表
 
 const studentDetailF = (studentId: string) => {
-  router.push(`/students/${studentId}`)
+  router.push(`/${catIdR.value}/students/${studentId}`)
 }
 </script>
 

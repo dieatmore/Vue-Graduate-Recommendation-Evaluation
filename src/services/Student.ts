@@ -1,6 +1,6 @@
 import axios, { useDelete, useGet, usePost } from '@/axios'
 import { createProgressNotification } from '@/components/progress'
-import { Role, type Progress, type ResultVO } from '@/types'
+import { Role, type Progress, type ResultVO, type TargetSubmit } from '@/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, ref, type Ref } from 'vue'
 import { querycachename } from './Const'
@@ -34,8 +34,8 @@ const getChildrenService = (rootId: Ref) => {
 const addSubmitNodeService = (rootId: Ref) => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (nodeId: string) =>
-      usePost(`student/nodes/${rootId.value}/submits/${nodeId}`, nodeId),
+    mutationFn: (TargetSubmit: TargetSubmit) =>
+      usePost(`student/nodes/${rootId.value}/submits/${TargetSubmit.targetNodeId}`, TargetSubmit),
     onSuccess: () => qc.refetchQueries({ queryKey: [querycachename.college.submitnodes, rootId] })
   })
 }
@@ -85,11 +85,44 @@ const deleteFileService = (rootId: Ref) => {
   })
 }
 
+// 获取个人信息
+const getMyInfoService = (studentId: Ref) => {
+  return useQuery({
+    queryKey: [querycachename.college.myinfo, studentId],
+    queryFn: () => useGet(`student/info`)
+  })
+}
+
+// 获取类别信息
+const getCategoryInfoService = (studentIdR: Ref) => {
+  return useQuery({
+    queryKey: [querycachename.college.category.info, studentIdR],
+    queryFn: () => useGet(`student/category`),
+    select: (data: any) => {
+      return {
+        name: data.name,
+        weight: JSON.parse(data.weight)
+      }
+    }
+  })
+}
+
+// 获取统计信息
+const getDetailInfoService = (studentIdR: Ref) => {
+  return useQuery({
+    queryKey: [querycachename.college.detailinfo, studentIdR],
+    queryFn: () => useGet(`student/infodetail`)
+  })
+}
+
 export const Student = {
   getRootNodeService,
   getSubmitNodesService,
   getChildrenService,
   addSubmitNodeService,
+  getMyInfoService,
+  getDetailInfoService,
+  getCategoryInfoService,
   deleteSubmitNodeService,
   UploadFileService,
   deleteFileService

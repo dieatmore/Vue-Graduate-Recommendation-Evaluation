@@ -39,14 +39,54 @@
         <el-form-item label="类别名称" prop="name">
           <el-input autocomplete="off" v-model="addFormR.name" />
         </el-form-item>
-        <el-form-item label="成绩占比" prop="weight">
-          <el-input autocomplete="off" v-model="addFormR.weight" />
+        <el-form-item label="成绩配置">
+          <el-button type="primary" size="small" @click="addScoreItem">添加成绩项</el-button>
+        </el-form-item>
+        <el-form-item>
+          <div
+            v-for="(item, index) in addFormR.weight"
+            :key="index"
+            class="score-item-row flex w-full mt-2">
+            <el-form-item
+              :prop="`weight[${index}].scoreName`"
+              :rules="[{ required: true, message: '名称不能为空', trigger: 'blur' }]"
+              label-width="40px"
+              label="名称"
+              class="score-item-col w-40">
+              <el-input autocomplete="off" v-model="item.scoreName" />
+            </el-form-item>
+
+            <el-form-item
+              :prop="`weight[${index}].scoreWeight`"
+              :rules="[
+                { required: true, message: '成绩占比不能为空', trigger: 'blur' },
+                { type: 'number', message: '成绩占比必须为数字', trigger: 'blur' },
+                { validator: validateWeight, trigger: 'blur' }
+              ]"
+              label-width="40px"
+              label="占比"
+              class="score-item-col w-40 ml-1">
+              <el-input
+                autocomplete="off"
+                v-model.number="item.scoreWeight"
+                placeholder="请输入1-100的数字"
+                type="number"
+                min="1"
+                max="100" />
+            </el-form-item>
+
+            <el-button type="danger" @click="removeScoreItem(index)" class="score-item-delete ml-2">
+              删除
+            </el-button>
+          </div>
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogFormVisibleR = false">取消</el-button>
-          <el-button type="primary" @click="handleConfirmF">确认</el-button>
+          <el-button type="primary" :disabled="!isConfirmEnabled" @click="handleConfirmF">
+            确认
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -65,9 +105,12 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="weight" label="成绩比重">
+      <el-table-column prop="weight" label="成绩配置">
         <template #default="scope">
-          <span class="font-medium">{{ scope.row.weight }}</span>
+          <div v-for="(item, index) in scope.row.weight" :key="index" class="mb-1">
+            <span class="font-medium">{{ item.scoreName }}:</span>
+            <span>{{ item.scoreWeight }}%</span>
+          </div>
         </template>
       </el-table-column>
 
@@ -98,10 +141,10 @@
 import { useMessage } from '@/components/message'
 import { CollegeAdmin } from '@/services/CollegeAdmin'
 import { useUserStore } from '@/stores/UserStore'
-import type { Category } from '@/types'
+import type { Category, weight } from '@/types'
 import { DeleteFilled, EditPen, Plus, RefreshRight, Search } from '@element-plus/icons-vue'
-import type { FormInstance } from 'element-plus'
-import { ref, toRef } from 'vue'
+import { type FormInstance } from 'element-plus'
+import { computed, ref, toRef } from 'vue'
 
 const message = useMessage()
 const userStore = useUserStore()
@@ -109,16 +152,28 @@ const user = userStore.UserS
 const role = toRef(() => user.value?.role)
 
 const { data: categoryListR } = CollegeAdmin.getCategoryService(role) // 初始化
-
+console.log(categoryListR)
 const dialogFormVisibleR = ref(false)
 const dialogStatusR = ref('add') // add or edit
 const formIns = ref<FormInstance>()
 const editId = ref()
-
 const addFormR = ref({
   name: '',
-  weight: ''
+  weight: [] as weight[]
 })
+
+// 添加成绩项
+const addScoreItem = () => {
+  addFormR.value.weight.push({
+    scoreName: '',
+    scoreWeight: 0
+  })
+}
+
+// 删除成绩项
+const removeScoreItem = (index: any) => {
+  addFormR.value.weight.splice(index, 1)
+}
 
 const addCategoryMutation = CollegeAdmin.addCategoryService() // 添加类别
 const deleteCategoryMutation = CollegeAdmin.deleteCategoryService() // 删除类别
@@ -130,29 +185,70 @@ const openDialogF = (status: string, data?: Category) => {
   dialogStatusR.value = status
   if (status == 'add') {
     addFormR.value.name = ''
-    addFormR.value.weight = ''
+    addFormR.value.weight = []
   } else {
     editId.value = data?.id
     addFormR.value.name = data?.name as string
-    addFormR.value.weight = data?.weight as string
+    addFormR.value.weight = []
+    for (const item of data?.weight as unknown as any[]) {
+      addFormR.value.weight.push({
+        scoreName: item.scoreName,
+        scoreWeight: item.scoreWeight
+      })
+    }
   }
 }
+
+// 成绩占比验证函数（带 TS 类型）
+const validateWeight = (rule: any, value: number, callback: (error?: Error) => void) => {
+  if (value === undefined || value === null) {
+    message.warning('成绩占比不能为空')
+  } else if (value < 1 || value > 100) {
+    message.error('1-100之间')
+  } else {
+    callback()
+  }
+}
+
+// 转换表单类型
+const resultFormR = computed(() => {
+  return {
+    name: addFormR.value.name,
+    weight: JSON.stringify(addFormR.value.weight)
+  }
+})
 
 // 操作类别
 const handleConfirmF = async () => {
   await formIns.value?.validate()
   if (dialogStatusR.value === 'edit') {
-    await updateCategoryMutation.mutateAsync({ categoryId: editId.value, cat: addFormR.value })
+    await updateCategoryMutation.mutateAsync({ categoryId: editId.value, cat: resultFormR.value })
     dialogFormVisibleR.value = false
     message.success('修改成功！')
     return
   } else {
-    await addCategoryMutation.mutateAsync(addFormR.value)
+    await addCategoryMutation.mutateAsync(resultFormR.value)
     dialogFormVisibleR.value = false
     message.success('添加成功！')
   }
 }
 
+// 计算占比总和
+const weightTotal = computed(() => {
+  return addFormR.value.weight.reduce((total, item) => {
+    // 过滤非数字/空值，避免NaN
+    const weight = Number(item.scoreWeight)
+    return total + (isNaN(weight) ? 0 : weight)
+  }, 0)
+})
+
+// 验证按钮是否可用（核心修正）
+const isConfirmEnabled = computed(() => {
+  // 条件2：占比总和严格等于100
+  if (weightTotal.value != 100) return false
+
+  return true
+})
 // 删除类别
 const handleDeleteF = async (id: string) => {
   await deleteCategoryMutation.mutateAsync(id)

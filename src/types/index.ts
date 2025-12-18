@@ -41,7 +41,7 @@ export interface Category {
   id?: string
   name?: string
   collegeId?: string
-  weight?: string
+  weight: string
   createTime?: string
   insertTime?: string
 }
@@ -107,10 +107,12 @@ export interface LogRecord {
 // 提交指标
 export interface TargetSubmit {
   id?: string
+  targetNodeId?: string
   name?: string
-  mark: number
-  comment: string
-  status: string
+  submitName?: string
+  mark?: number
+  comment?: string
+  status?: string
   createTime?: string
   updateTime?: string
 }
@@ -130,4 +132,10 @@ export interface Progress {
   total: number
   loaded: number
   title: string
+}
+
+// 成绩比重
+export interface weight {
+  scoreName?: string
+  scoreWeight?: number
 }

@@ -228,7 +228,7 @@ const menuItemsR = computed<MenuItem[]>(() => {
     })
     items.push({
       name: '个人中心',
-      path: '/studentinfo',
+      path: `/${user.value?.id}/studentinfo`,
       icon: Avatar,
       style: { 'font-weight': 'bolder' }
     })

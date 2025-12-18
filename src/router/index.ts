@@ -42,7 +42,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/main/CollegeAdmin/TeacherView.vue')
       },
       {
-        path: '/students/:studentId',
+        path: '/:catId/students/:studentId',
         component: () => import('@/views/main/CollegeAdmin/StudentDetail.vue')
       },
       {
@@ -66,7 +66,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/Student',
     component: () => import('@/views/main/Student/IndexView.vue'),
-    redirect: () => '/studentinfo',
+    redirect: () => '/:studentId/studentinfo',
     meta: { role: Role.STUDENT },
     children: [
       {
@@ -74,7 +74,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/main/Student/SubmitView.vue')
       },
       {
-        path: '/studentinfo',
+        path: '/:studentId/studentinfo',
         component: () => import('@/views/main/Student/StudentInfo.vue')
       },
       {
