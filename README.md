@@ -2,7 +2,7 @@
 
 ## 📝 OVERVIEW
 
-推免管理系统项目的前端端代码
+推免管理系统项目的前端代码
 
 ### 🛠️ Development Tools
 
