@@ -9,8 +9,6 @@ jobs:
   deploy-frontend:
     name: 前端部署
     runs-on: ubuntu-latest
-    env: 
-      BASE_DIR: /www/wwwroot/recommendation
     steps:
       - name: 拉取前端代码
         uses: actions/checkout@v4
@@ -41,7 +39,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: 'dist/*'
-          target: ${env.BASE_DIR}/nginx/html
+          target: /www/wwwroot/recommendation/nginx/html
           strip_components: 1 # 只复制文件，不复制dist目录
           rm: true # 先删除目标目录文件
 
@@ -53,7 +51,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ${env.BASE_DIR}
+            cd /www/wwwroot/recommendation
             docker compose up --force-recreate --no-deps -d nginx
 
   # 后端Job
@@ -94,8 +92,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            mkdir -p ${env.BASE_DIR}/openjdk
-            rm -rf ${env.BASE_DIR}/openjdk/graduate-recommendation-evaluation.jar
-            scp ${{ github.workspace }}/backend/target/graduate-recommendation-evaluation.jar root@${{ secrets.SSH_HOST }}:${env.BASE_DIR}/openjdk/
-            cd ${env.BASE_DIR}
+            mkdir -p /www/wwwroot/recommendation/openjdk
+            rm -rf /www/wwwroot/recommendation/openjdk/graduate-recommendation-evaluation.jar
+            scp ${{ github.workspace }}/backend/target/graduate-recommendation-evaluation.jar root@${{ secrets.SSH_HOST }}:/www/wwwroot/recommendation/openjdk/
+            cd /www/wwwroot/recommendation
             docker compose up --force-recreate --no-deps -d openjdk
