@@ -1,4 +1,4 @@
-name: 前端为主仓库-前后端独立持续部署
+name: 前端部署
 on:
   push:
     branches: ['main']
