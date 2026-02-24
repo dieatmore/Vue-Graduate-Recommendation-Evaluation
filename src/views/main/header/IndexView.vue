@@ -174,7 +174,7 @@ const menuItemsR = computed<MenuItem[]>(() => {
       path: '/major',
       icon: Management,
       style: { 'font-weight': 'bolder' },
-      children: categoryListR.value.map((category: Category) => ({
+      children: categoryListR.value?.map((category: Category) => ({
         name: category.name,
         path: `/categorys/${category.id}/managemajors`
       }))
@@ -198,7 +198,7 @@ const menuItemsR = computed<MenuItem[]>(() => {
       path: '/noderule',
       icon: List,
       style: { 'font-weight': 'bolder' },
-      children: categoryListR.value.map((category: Category) => ({
+      children: categoryListR.value?.map((category: Category) => ({
         name: category.name,
         path: `/categorys/${category.id}/noderules`
       }))

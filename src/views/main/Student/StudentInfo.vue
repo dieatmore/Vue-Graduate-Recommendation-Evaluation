@@ -108,17 +108,20 @@
         <div class="mx-auto flex items-center">
           <el-text size="large" class="font-bold" tag="mark">
             当前总成绩：
-            <el-tag type="primary" effect="dark" round>91.5</el-tag>
+            <el-tag type="primary" effect="dark" round>{{ resultScore }}</el-tag>
             =
             {{ categoryInfoR?.weight[0].scoreName || '暂无' }}:
             <el-tag type="primary" effect="dark" round>
               {{ studentInfoR?.scorex || '暂无' }}
             </el-tag>
-            +
+            *
+            {{ categoryInfoR?.weight[0].scoreWeight || '暂无' }}% +
             {{ categoryInfoR?.weight[1].scoreName || '暂无' }}:
             <el-tag type="primary" effect="dark" round>
               {{ detailInfoR?.confirmed_score || '暂无' }}
             </el-tag>
+            *
+            {{ categoryInfoR?.weight[1].scoreWeight || '暂无' }}%
           </el-text>
         </div>
       </div>
@@ -127,7 +130,7 @@
 </template>
 <script setup lang="ts">
 import { Student } from '@/services/Student'
-import { toRef } from 'vue'
+import { ref, toRef } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -139,6 +142,10 @@ const { data: detailInfoR, suspense: suspenseDetail } = Student.getDetailInfoSer
 await suspenseInfo()
 await suspenseCat()
 await suspenseDetail()
+const resultScore = ref(
+  (studentInfoR.value.scorex * categoryInfoR?.value?.weight[0].scoreWeight) / 100 +
+    (detailInfoR.value.confirmed_score * categoryInfoR?.value?.weight[1].scoreWeight) / 100
+)
 </script>
 <style scoped>
 .main-container {

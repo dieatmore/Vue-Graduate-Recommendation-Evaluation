@@ -39,7 +39,7 @@ export interface College {
 // 类别
 export interface Category {
   id?: string
-  name?: string
+  name: string
   collegeId?: string
   weight: string
   createTime?: string
